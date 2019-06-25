@@ -25,7 +25,7 @@ namespace Crab
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
-            await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
+            await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
 
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
