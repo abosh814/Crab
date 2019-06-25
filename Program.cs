@@ -21,7 +21,7 @@ namespace Crab
         public async Task MainAsync()
         {
             _client = new DiscordSocketClient();
-            _config = BuildConfig();
+            _config = Utils.GetConfig();
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
@@ -48,13 +48,5 @@ namespace Crab
                 // Add additional services here...
                 .BuildServiceProvider();
         }
-
-        private IConfiguration BuildConfig()
-        {
-            return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json")
-                .Build();
-        }
-}
+    }
 }

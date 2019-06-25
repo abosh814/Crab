@@ -14,7 +14,7 @@ namespace Crab.Modules
             => ReplyAsync($"You are {Context.User.Username}.");
 
         [Command("Say")]
-        public Task Say(string message)
+        public Task Say([Remainder] string message)
             => ReplyAsync($"{message}");
     }
 }
