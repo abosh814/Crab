@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using System;
+using Microsoft.Extensions.Configuration;
 
 namespace Crab.Modules
 {
@@ -33,6 +34,15 @@ namespace Crab.Modules
                     return ReplyAsync(Utils.idinfo(Context.User.Id));
                 return ReplyAsync(Utils.idinfo(Convert.ToUInt64(id)));
             }
+        }
+
+        //TODO ADD ADMIN CHECK
+        [Command("config")]
+        public Task config()
+        {
+            if(Utils.isadmin(Context.User.Id))
+                return ReplyAsync(Utils.listConfig());
+            return null;
         }
     }
 }

@@ -4,18 +4,15 @@
 		{
 			"name": "VGStation",
 			"prefix": "",
-			"repo": "vgstation-coders/vgstation13",
-			"admin_ids": [
-				"147741474685976576"
-			]
+			"repo": "vgstation-coders/vgstation13"
 		},
 		{
 			"name": "Crab",
 			"prefix": "c",
-			"repo": "PaulRitter/Crab",
-			"admin_ids": [
-				"147741474685976576"
-			]
+			"repo": "PaulRitter/Crab"
 		}
+	]
+	"devs": [
+		"147741474685976576"
 	]
 }
