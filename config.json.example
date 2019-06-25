@@ -1,0 +1,21 @@
+{
+	"token": "your_token",
+	"repos": [
+		{
+			"name": "VGStation",
+			"prefix": "",
+			"repo": "vgstation-coders/vgstation13",
+			"admin_ids": [
+				"147741474685976576"
+			]
+		},
+		{
+			"name": "Crab",
+			"prefix": "c",
+			"repo": "Fields-Of-Fire/Fields-Of-Fire",
+			"admin_ids": [
+				"147741474685976576"
+			]
+		}
+	]
+}

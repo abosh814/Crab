@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Discord.Commands;
+using Microsoft.Extensions.Configuration;
 
 namespace Crab.Modules
 {
@@ -16,5 +17,20 @@ namespace Crab.Modules
         [Command("Say")]
         public Task Say([Remainder] string message)
             => ReplyAsync($"{message}");
+
+        [Command("myid")]
+        public Task MyID()
+            => ReplyAsync($"{Context.User.Id}");
+
+        [Command("admincheck")]
+        public Task admincheck(string repo){
+            IConfiguration config = Utils.GetConfig();
+            /*if(!config["repos"][repo]){
+                return ReplyAsync($"Unknown Repoprefix: \"{repo}\"");
+            }*/
+
+
+            return ReplyAsync($"{config["repos"]}");
+        }
     }
 }
