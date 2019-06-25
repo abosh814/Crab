@@ -14,5 +14,6 @@
 	]
 	"devs": [
 		"147741474685976576"
-	]
+	],
+	"git_auth": "your git auth token"
 }
