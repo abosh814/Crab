@@ -22,10 +22,6 @@ namespace Crab.Modules
         public class IdModule : ModuleBase<SocketCommandContext>
         {
 
-            [Command("my")]
-            public Task My()
-                => ReplyAsync(Utils.idinfo(Context.User.Id));
-
             [Command]
             public Task Other(){
                 return ReplyAsync("You need to specify an ID");
@@ -33,7 +29,10 @@ namespace Crab.Modules
 
             [Command]
             public Task Other(string id){
+                if(id == "my")
+                    return ReplyAsync(Utils.idinfo(Context.User.Id));
                 return ReplyAsync(Utils.idinfo(Convert.ToUInt64(id)));
             }
+        }
     }
 }

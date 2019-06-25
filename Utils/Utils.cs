@@ -28,7 +28,7 @@ namespace Crab{
                 info += "No";
             info += "\n";
 
-            return info
+            return info;
         }
     }
 }
