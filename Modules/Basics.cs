@@ -36,7 +36,6 @@ namespace Crab.Modules
             }
         }
 
-        //TODO ADD ADMIN CHECK
         [Command("config")]
         public Task config()
         {

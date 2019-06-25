@@ -56,5 +56,9 @@ namespace Crab{
                 return $"{section.Key}: {section.Value}\n";
             }
         }
+
+        public static string github_url(string sub){
+            return $"https://api.github.com{sub}";
+        }
     }
 }
