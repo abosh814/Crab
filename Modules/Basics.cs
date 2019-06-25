@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Discord.Commands;
-using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Crab.Modules
 {
@@ -18,19 +18,22 @@ namespace Crab.Modules
         public Task Say([Remainder] string message)
             => ReplyAsync($"{message}");
 
-        [Command("myid")]
-        public Task MyID()
-            => ReplyAsync($"{Context.User.Id}");
+        [Group("id")]
+        public class IdModule : ModuleBase<SocketCommandContext>
+        {
 
-        [Command("admincheck")]
-        public Task admincheck(string repo){
-            IConfiguration config = Utils.GetConfig();
-            /*if(!config["repos"][repo]){
-                return ReplyAsync($"Unknown Repoprefix: \"{repo}\"");
-            }*/
+            [Command("my")]
+            public Task My()
+                => ReplyAsync(Utils.idinfo(Context.User.Id));
 
+            [Command]
+            public Task Other(){
+                return ReplyAsync("You need to specify an ID");
+            }
 
-            return ReplyAsync($"{config["repos"]}");
-        }
+            [Command]
+            public Task Other(string id){
+                return ReplyAsync(Utils.idinfo(Convert.ToUInt64(id)));
+            }
     }
 }
