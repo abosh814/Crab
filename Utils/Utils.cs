@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Net;
 using Discord;
+using System.Collections.Generic;
 
 namespace Crab{
     static class Utils {
@@ -114,8 +115,7 @@ namespace Crab{
 
         public static Embed embed_issue(dynamic issue, string repo){
             string title = issue.title;
-            string desc = issue.body;
-            string avatar_url = issue.avatar_url;
+            string desc = format_desc($"{issue.body}");
 
             dynamic prcontent = null;
             if(issue.pull_request != null){
@@ -144,10 +144,83 @@ namespace Crab{
                 embed.WithColor(0xFF4444);
             }
 
-            embed.WithTitle(emoji + $"{issue.title}")
-                .WithDescription(format_desc($"{issue.body}"))
-                .AddField("Checks", "todo: success\ntodo: failure\ntodo: neutral")
-                .WithFooter($"{repo}#{issue.number} by {issue.user.login}",$"{issue.avatar_url}");
+            title = emoji + title;
+
+            dynamic reactions = get_json($"{issue.url}/reactions?per_page=100", "application/vnd.github.squirrel-girl-preview+json");
+            Dictionary<string, int> reactions_count = new Dictionary<string, int>();
+            foreach (dynamic reaction in reactions)
+            {
+                if(reactions_count.ContainsKey($"{reaction.content}")){
+                    reactions_count[$"{reaction.content}"] += 1;
+                }else{
+                    reactions_count.Add($"{reaction.content}", 1);
+                }
+            }
+
+            desc += "\n";
+            if(reactions_count.ContainsKey("+1")){
+                desc += $"👍 {reactions_count["+1"]}   ";
+            }
+            if(reactions_count.ContainsKey("-1")){
+                desc += $"👎 {reactions_count["-1"]}";
+            }
+
+            embed.WithTitle(title)
+                .WithDescription(desc)
+                .WithFooter($"{repo}#{issue.number} by {issue.user.login}",$"{issue.user.avatar_url}");
+
+            if(prcontent != null){
+                string merge_sha = prcontent.head.sha;
+                dynamic check_content = get_json(github_url($"/repos/{repo}/commits/{merge_sha}/check-runs"), "application/vnd.github.antiope-preview+json");
+
+                string checks = "";
+                foreach (dynamic check in check_content.check_runs)
+                {
+                    string status = "";
+                    switch ($"{check.status}")
+                    {
+                        case "queued":
+                            status = "In Queue";
+                            break;
+                        case "in_progress":
+                            status = "Running";
+                            break;
+                        case "completed":
+                            switch($"{check.conclusion}"){
+                                case "neutral":
+                                    status = "Neutral Result";
+                                    break;
+                                case "success":
+                                    status = "Success";
+                                    break;
+                                case "failure":
+                                    status = "Failure";
+                                    break;
+                                case "cancelled":
+                                    status = "Cancelled";
+                                    break;
+                                case "timed_out":
+                                    status = "Timed out";
+                                    break;
+                                case "action_required":
+                                    status = $"[Action Required]({check.details_url})";
+                                    break;
+                                default:
+                                    status = $"UNKNOWN RESULT: {check.conclusion}";
+                                    break;
+                            }
+                            break;
+                        default:
+                            status = $"UNKNOWN STATUS: {check.status}";
+                            break;
+                    }
+                    checks += $"{check.name} - {status}\n";
+                }
+                embed.AddField("Checks", checks);
+                embed.WithAuthor($"{issue.user.login}", $"{issue.user.avatar_url}", $"{issue.user.html_url}");
+            }
+
+
             return embed.Build();
         }
     }
