@@ -1,5 +1,9 @@
 {
 	"token": "your_token",
+	"git_auth": "your git auth token",
+	"devs": [
+		"147741474685976576"
+	],
 	"repos": [
 		{
 			"name": "VGStation",
@@ -12,8 +16,4 @@
 			"repo": "PaulRitter/Crab"
 		}
 	]
-	"devs": [
-		"147741474685976576"
-	],
-	"git_auth": "your git auth token"
 }
