@@ -7,6 +7,16 @@ using System.Collections.Generic;
 
 namespace Crab{
     static class Utils {
+
+        public const string PR_closed = "<:PRclosed:246037149839917056>";
+        public const string PR_merged = "<:PRmerged:437316952772444170>";
+        public const string PR_opened = "<:PRopened:245910125041287168>";
+        public const string ISS_opened = "<:ISSopened:246037149873340416>";
+        public const string ISS_closed = "<:ISSclosed:246037286322569216>";
+        public const string upvote = "<:upvote:>";
+        public const string downvote = "<:downvote:>";
+        
+
         public static IConfiguration GetConfig(){
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -126,21 +136,21 @@ namespace Crab{
             string emoji = "";
             if(issue.state == "open"){
                 if(prcontent != null){
-                    emoji = "<:PRopened:245910125041287168>";
+                    emoji = PR_opened;
                 }else{
-                    emoji = "<:ISSopened:246037149873340416>";
+                    emoji = ISS_opened;
                 }
                 embed.WithColor(0x6CC644);
             }else if(prcontent != null){
                 if(prcontent.merged != null){
-                    emoji = "<:PRmerged:437316952772444170>";
+                    emoji = PR_merged;
                     embed.WithColor(0x6E5494);
                 }else{
-                    emoji = "<:PRclosed:246037149839917056>";
+                    emoji = PR_closed;
                     embed.WithColor(0xFF4444);
                 }
             }else{
-                emoji = "<:ISSclosed:246037286322569216>";
+                emoji = ISS_closed;
                 embed.WithColor(0xFF4444);
             }
 
@@ -159,10 +169,10 @@ namespace Crab{
 
             desc += "\n";
             if(reactions_count.ContainsKey("+1")){
-                desc += $"👍 {reactions_count["+1"]}   ";
+                desc += $"{upvote} {reactions_count["+1"]}   ";
             }
             if(reactions_count.ContainsKey("-1")){
-                desc += $"👎 {reactions_count["-1"]}";
+                desc += $"{downvote} {reactions_count["-1"]}";
             }
 
             if(prcontent != null && prcontent.mergeable != true && prcontent.merged != true){
@@ -175,6 +185,7 @@ namespace Crab{
                 .WithFooter($"{repo}#{issue.number} by {issue.user.login}",$"{issue.user.avatar_url}");
 
             if(prcontent != null){
+                //Checks
                 string merge_sha = prcontent.head.sha;
                 dynamic check_content = get_json(github_url($"/repos/{repo}/commits/{merge_sha}/check-runs"), "application/vnd.github.antiope-preview+json");
 
@@ -191,36 +202,75 @@ namespace Crab{
                             status = "Running";
                             break;
                         case "completed":
-                            switch($"{check.conclusion}"){
-                                case "neutral":
-                                    status = "Neutral Result";
-                                    break;
-                                case "success":
-                                    status = "Success";
-                                    break;
-                                case "failure":
-                                    status = "Failure";
-                                    break;
-                                case "cancelled":
-                                    status = "Cancelled";
-                                    break;
-                                case "timed_out":
-                                    status = "Timed out";
-                                    break;
-                                case "action_required":
-                                    status = $"[Action Required]({check.details_url})";
-                                    break;
-                                default:
-                                    status = $"UNKNOWN RESULT: {check.conclusion}";
-                                    break;
+                            if(check.output != null && check.output.title != null){
+                                status = $"{check.output.title}";
+                            }else{
+                                switch($"{check.conclusion}"){
+                                    case "neutral":
+                                        status = "Neutral Result";
+                                        break;
+                                    case "success":
+                                        status = "Success";
+                                        break;
+                                    case "failure":
+                                        status = "Failed";
+                                        break;
+                                    case "cancelled":
+                                        status = "Cancelled";
+                                        break;
+                                    case "timed_out":
+                                        status = "Timed out";
+                                        break;
+                                    case "action_required":
+                                        status = $"[Action Required]({check.details_url})";
+                                        break;
+                                    default:
+                                        status = $"UNKNOWN RESULT: {check.conclusion}";
+                                        break;
+                                }
                             }
                             break;
                         default:
                             status = $"UNKNOWN STATUS: {check.status}";
                             break;
                     }
-                    checks += $"{check.name} - {status}\n";
+                    string name = $"{check.name}";
+                    if(check.app.name != null){
+                        name = $"{check.app.name}";
+                    }
+
+                    checks += $"[{name}]({check.html_url}) - {status}\n";
                 }
+
+                //Statuses
+                dynamic status_content = get_json(github_url($"/repos/{repo}/commits/{merge_sha}/status"));
+                foreach(dynamic status in status_content.statuses){
+                    string stat = "";
+                    if(status.description != null){
+                        stat = $"{status.description}";
+                    }else{
+                        switch($"{status.state}"){
+                            case "success":
+                                stat += "Success";
+                                break;
+                            case "pending":
+                                stat += "Running";
+                                break;
+                            case "error":
+                                stat += "Error";
+                                break;
+                            case "failure":
+                                stat += "Failed";
+                                break;
+                            default:
+                                stat += $"UNKNOWN STATUS: {status.state}";
+                                break;
+                        }
+                    }
+                    checks += $"[{status.context}]({status.target_url}) - {stat}\n";
+                }
+
+
                 if(checks != ""){
                     embed.AddField("Checks", checks);
                 }
