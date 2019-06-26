@@ -132,7 +132,7 @@ namespace Crab{
                 }
                 embed.WithColor(0x6CC644);
             }else if(prcontent != null){
-                if(prcontent.merged){
+                if(prcontent.merged != null){
                     emoji = "<:PRmerged:437316952772444170>";
                     embed.WithColor(0x6E5494);
                 }else{
@@ -165,7 +165,12 @@ namespace Crab{
                 desc += $"👎 {reactions_count["-1"]}";
             }
 
+            if(prcontent != null && prcontent.mergeable != true && prcontent.merged != true){
+                desc += "\n**🚨 `CONFLICTS` 🚨**";
+            }
+
             embed.WithTitle(title)
+                .WithUrl($"{issue.html_url}")
                 .WithDescription(desc)
                 .WithFooter($"{repo}#{issue.number} by {issue.user.login}",$"{issue.user.avatar_url}");
 
@@ -216,9 +221,11 @@ namespace Crab{
                     }
                     checks += $"{check.name} - {status}\n";
                 }
-                embed.AddField("Checks", checks);
-                embed.WithAuthor($"{issue.user.login}", $"{issue.user.avatar_url}", $"{issue.user.html_url}");
+                if(checks != ""){
+                    embed.AddField("Checks", checks);
+                }
             }
+            embed.WithAuthor($"{issue.user.login}", $"{issue.user.avatar_url}", $"{issue.user.html_url}");
 
 
             return embed.Build();
