@@ -8,13 +8,13 @@ using System.Collections.Generic;
 namespace Crab{
     static class Utils {
 
-        public const string PR_closed = "<:PRclosed:246037149839917056>";
-        public const string PR_merged = "<:PRmerged:437316952772444170>";
-        public const string PR_opened = "<:PRopened:245910125041287168>";
-        public const string ISS_opened = "<:ISSopened:246037149873340416>";
-        public const string ISS_closed = "<:ISSclosed:246037286322569216>";
-        public const string upvote = "<:upvote:>";
-        public const string downvote = "<:downvote:>";
+        public const string PR_closed = "<:PRclosed:593477127005798407>";
+        public const string PR_merged = "<:PRmerged:593477080256348190>";
+        public const string PR_opened = "<:PRopened:593477178151403521>";
+        public const string ISS_opened = "<:ISSopened:593476746674831390>";
+        public const string ISS_closed = "<:ISSclosed:593476827847327744>";
+        public const string upvote = "<:upvote:593476691008159768>";
+        public const string downvote = "<:downvote:593476558509834261>";
         
 
         public static IConfiguration GetConfig(){
