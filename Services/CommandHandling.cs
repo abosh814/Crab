@@ -66,7 +66,12 @@ namespace Crab.Services
                 return;
 
             // the command failed, let's notify the user that something happened.
-            await context.Channel.SendMessageAsync($"error: {result}");
+            string mentions = "";
+            foreach (var key in Utils.get_all_admin_keys())
+            {
+                mentions += $"<@!{key}>";
+            }
+            await context.Channel.SendMessageAsync($"{mentions} we got an error");
         }
     }
 }

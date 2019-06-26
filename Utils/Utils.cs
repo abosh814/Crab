@@ -230,5 +230,15 @@ namespace Crab{
 
             return embed.Build();
         }
+
+        public static List<string> get_all_admin_keys(){
+            List<string> keys = new List<string>();
+            IConfiguration config = GetConfig();
+            foreach (IConfigurationSection admin in config.GetSection("devs").GetChildren())
+            {
+                keys.Add(admin.Value);
+            }
+            return keys;
+        }
     }
 }
