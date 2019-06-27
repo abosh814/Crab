@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using System;
-using Microsoft.Extensions.Configuration;
 
 namespace Crab.Modules
 {
