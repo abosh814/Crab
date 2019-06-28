@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Net;
@@ -6,7 +6,8 @@ using Discord;
 using System.Collections.Generic;
 
 namespace Crab{
-    static class Utils {
+    public static class Utils
+    {
 
         public const string PR_closed = "<:PRclosed:593477127005798407>";
         public const string PR_merged = "<:PRmerged:593477080256348190>";
@@ -15,17 +16,9 @@ namespace Crab{
         public const string ISS_closed = "<:ISSclosed:593476827847327744>";
         public const string upvote = "<:upvote:593476691008159768>";
         public const string downvote = "<:downvote:593476558509834261>";
-        
-
-        public static IConfiguration GetConfig(){
-            return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json")
-                .Build();
-        }
 
         public static bool isadmin(ulong id){
-            IConfiguration config = GetConfig();
+            IConfiguration config = ConfigGetter.Get();
 
             foreach(IConfigurationSection admin in config.GetSection("devs").GetChildren()){
                 if(admin.Value == id.ToString()) return true;
@@ -36,7 +29,7 @@ namespace Crab{
         public static string idinfo(ulong id){
             //header
             string info = $"ID: {id}\n";
-            IConfiguration config = GetConfig();
+            IConfiguration config = ConfigGetter.Get();
             
             //admin?
             info += "Admin: ";
@@ -52,7 +45,7 @@ namespace Crab{
 
         public static string listConfig(){
             string info = "";
-            foreach(IConfigurationSection section in GetConfig().GetChildren()){
+            foreach(IConfigurationSection section in ConfigGetter.Get().GetChildren()){
                 info += ConfigSectionToString(section);
             }
             return info;
@@ -82,7 +75,7 @@ namespace Crab{
         public static string get_request(string uri, string accept)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            IConfiguration config = GetConfig();
+            IConfiguration config = ConfigGetter.Get();
             request.Headers["Authorization"] = config["git_auth"];
             request.UserAgent = "Crab (@PaulRitter)";
             if(accept != ""){
@@ -109,7 +102,7 @@ namespace Crab{
         }
 
         public static string get_repo(string prefix){
-            IConfiguration config = GetConfig();
+            IConfiguration config = ConfigGetter.Get();
             foreach (IConfigurationSection repo in config.GetSection("repos").GetChildren()){
                 if(repo.GetValue<string>("prefix") == prefix) return repo.GetValue<string>("repo");
             }
@@ -283,7 +276,7 @@ namespace Crab{
 
         public static List<string> get_all_admin_keys(){
             List<string> keys = new List<string>();
-            IConfiguration config = GetConfig();
+            IConfiguration config = ConfigGetter.Get();
             foreach (IConfigurationSection admin in config.GetSection("devs").GetChildren())
             {
                 keys.Add(admin.Value);

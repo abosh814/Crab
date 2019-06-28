@@ -7,7 +7,7 @@ using Discord.WebSocket;
 
 namespace Crab.Services
 {
-    public class LogService
+    public class LogService : CrabModule
     {
         private readonly DiscordSocketClient _discord;
         private readonly CommandService _commands;

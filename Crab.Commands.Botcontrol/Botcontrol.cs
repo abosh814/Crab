@@ -1,10 +1,12 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace Crab.Modules
+namespace Crab
 {
-    public class Botcontrol : ModuleBase<SocketCommandContext>
+    public class Botcontrol : ModuleBase<SocketCommandContext>, CrabModule
     {
+        public void onLoad(){}
+
         [Command("shutdown")]
         public Task shutdown(){
             if(!Utils.isadmin(Context.User.Id))

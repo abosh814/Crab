@@ -1,10 +1,12 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace Crab.Modules
+namespace Crab
 {
-    public class IssueModule : ModuleBase<SocketCommandContext>
+    public class IssueModule : ModuleBase<SocketCommandContext>, CrabModule
     {
+        public void onLoad(){}
+        
         [Command("issue")]
         public Task getIssue(string issueid){
             return getIssue(issueid, "");

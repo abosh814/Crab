@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using System;
 
-namespace Crab.Modules
+namespace Crab
 {
-    public class Basics : ModuleBase<SocketCommandContext>
+    public class Basics : ModuleBase<SocketCommandContext>, CrabModule
     {
         [Command("Hi")]
         public Task Hi()

@@ -5,10 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using System.Collections.Generic;
 
 namespace Crab.Services
 {
-    public class CommandHandlingService
+    public class CommandHandlingService : CrabModule
     {
         private readonly CommandService _commands;
         private readonly DiscordSocketClient _discord;
@@ -30,7 +31,15 @@ namespace Crab.Services
         public async Task InitializeAsync()
         {
             // Register modules that are public and inherit ModuleBase<T>.
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                IEnumerable<ModuleInfo> modules = await _commands.AddModulesAsync(ass, _services);
+                foreach (ModuleInfo module in modules)
+                {
+                    Console.WriteLine($"loaded command: {module.Name}");
+                }
+            }
+            
         }
 
         public async Task MessageReceivedAsync(SocketMessage rawMessage)

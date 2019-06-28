@@ -1,0 +1,37 @@
+{
+	"token": "your_token",
+	"git_auth": "your git auth token",
+	"devs": [
+		"147741474685976576"
+	],
+	"modules": [
+		{
+			"name": "Commands",
+			"path": "../Crab.Commands/bin/Debug/netcoreapp3.0/Crab.Commands.dll"
+		},
+		{
+			"name": "Commands.Botcontrol",
+			"path": "../Crab.Commands.Botcontrol/bin/Debug/netcoreapp3.0/Crab.Commands.Botcontrol.dll"
+		},
+		{
+			"name": "Commands.Github",
+			"path": "../Crab.Commands.Github/bin/Debug/netcoreapp3.0/Crab.Commands.Github.dll"
+		},
+		{
+			"name": "Core",
+			"path": "../Crab/bin/Debug/netcoreapp3.0/Crab.dll"
+		}
+	],
+	"repos": [
+		{
+			"name": "VGStation",
+			"prefix": "",
+			"repo": "vgstation-coders/vgstation13"
+		},
+		{
+			"name": "Crab",
+			"prefix": "c",
+			"repo": "PaulRitter/Crab"
+		}
+	]
+}
