@@ -13,6 +13,8 @@ namespace Crab
     {
         private DiscordSocketClient _client;
 
+        public static CommandHandlingService _command;
+
         public async Task MainAsync()
         {
             _client = new DiscordSocketClient();
@@ -20,7 +22,8 @@ namespace Crab
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
-            await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
+            //await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
+            _command = services.GetRequiredService<CommandHandlingService>();
 
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();

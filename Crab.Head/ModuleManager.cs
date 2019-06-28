@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
-
 namespace Crab
 {
     public class ModuleManager
@@ -25,10 +24,7 @@ namespace Crab
 
         public void loadModule(string name)
         {
-            if(_modules.ContainsKey(name)){
-                _modules[name].Unload();
-                _modules.Remove(name);
-            }
+            unloadModule(name);
 
             AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
             string modulePath = Utils.getModulePath(name);
@@ -44,15 +40,29 @@ namespace Crab
                 }
             }
             _modules.Add(name, _moduleLoadContext);
+
+            if(Core._command != null){
+                Core._command.loadModuleAsync(assembly);
+            }else{
+                Console.WriteLine("help why no commandhandler");
+            }
+
         }
 
         public bool unloadModule(string name){
             if(_modules.ContainsKey(name)){
+                if(Core._command != null){
+                    foreach (Assembly ass in _modules[name].Assemblies)
+                    {
+                        Core._command.unloadModuleAsync(ass);
+                    }
+                }
                 _modules[name].Unload();
                 _modules.Remove(name);
                 return true; 
             }
             return false;
+
         }
     }
 }

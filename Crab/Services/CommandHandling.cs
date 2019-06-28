@@ -14,6 +14,7 @@ namespace Crab.Services
         private readonly CommandService _commands;
         private readonly DiscordSocketClient _discord;
         private readonly IServiceProvider _services;
+        private Dictionary<Assembly, List<ModuleInfo>> loadedModules = new Dictionary<Assembly, List<ModuleInfo>>();
 
         public CommandHandlingService(IServiceProvider services)
         {
@@ -28,18 +29,32 @@ namespace Crab.Services
             _discord.MessageReceived += MessageReceivedAsync;
         }
 
-        public async Task InitializeAsync()
+        public async void loadModuleAsync(Assembly ass)
         {
-            // Register modules that are public and inherit ModuleBase<T>.
-            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            IEnumerable<ModuleInfo> modules = await _commands.AddModulesAsync(ass, _services);
+            foreach (ModuleInfo module in modules)
             {
-                IEnumerable<ModuleInfo> modules = await _commands.AddModulesAsync(ass, _services);
-                foreach (ModuleInfo module in modules)
-                {
-                    Console.WriteLine($"loaded command: {module.Name}");
+                if(!loadedModules.ContainsKey(ass)){
+                    List<ModuleInfo> list = new List<ModuleInfo>();
+                    list.Add(module);
+                    loadedModules.Add(ass, list);
+                }else{
+                    loadedModules[ass].Add(module);
                 }
+                Console.WriteLine($"loaded command module: {module.Name}");
             }
-            
+        }
+
+        public async void unloadModuleAsync(Assembly ass)
+        {
+            if(!loadedModules.ContainsKey(ass))
+                return;
+            foreach (ModuleInfo mod in loadedModules[ass])
+            {
+                await _commands.RemoveModuleAsync(mod);
+                loadedModules[ass].Remove(mod);
+                Console.WriteLine($"unloaded command module: {mod.Name}");
+            }
         }
 
         public async Task MessageReceivedAsync(SocketMessage rawMessage)
