@@ -1,23 +1,18 @@
-﻿using System;
-using System.IO;
-
-namespace Crab
+﻿namespace Crab
 {
-    class Program
+    public static class InstanceHolder
     {
+        
+    }
+    public class Program
+    {
+        public static ModuleManager currentModuleManager;
         static void Main(string[] args)
         {
-            new ModuleManager().loadAllModules();
+            currentModuleManager = new ModuleManager();
+            currentModuleManager.loadAllModules();
 
-            try
-            {
-                new Core().MainAsync().GetAwaiter().GetResult();
-            }
-            catch (System.Exception e)
-            {
-                Console.WriteLine("Erroryes: ", e.Message);
-                throw;
-            }
+            new Core().MainAsync().GetAwaiter().GetResult();
         }
     }
 }

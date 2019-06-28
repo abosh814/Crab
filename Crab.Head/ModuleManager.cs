@@ -4,35 +4,34 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+
 
 namespace Crab
 {
-    class ModuleManager
+    public class ModuleManager
     {
-        private AssemblyLoadContext _moduleLoadContext;
+        private Dictionary<string, AssemblyLoadContext> _modules = new Dictionary<string, AssemblyLoadContext>();
 
         public void loadAllModules()
         {
             Console.WriteLine("Loading modules!");
-            if (_moduleLoadContext != null)
-            {
-                Console.WriteLine("Unloading previous modules!");
-                _moduleLoadContext.Unload();
-                _moduleLoadContext = null;
-            }
-            // TODO: Maybe ensure no modules are running while reloading to prevent race conditions.
-            _moduleLoadContext = new AssemblyLoadContext("Crab Modules", true);
-            IConfiguration config = ConfigGetter.Get();
+            IConfiguration config = Utils.getConfig();
             foreach (IConfigurationSection item in config.GetSection("modules").GetChildren())
             {
-                loadModuleByPath(item.GetValue<string>("path"));
+                loadModule(item.GetValue<string>("name"));
             }
         }
 
-        public void loadModuleByName(string name)
-            => loadModuleByPath(ConfigGetter.getModulePath(name));
+        public void loadModule(string name)
+        {
+            if(_modules.ContainsKey(name)){
+                _modules[name].Unload();
+                _modules.Remove(name);
+            }
 
-        public void loadModuleByPath(string modulePath){
+            AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
+            string modulePath = Utils.getModulePath(name);
             Assembly assembly;
             using (var file = File.OpenRead(modulePath))
             {
@@ -44,6 +43,16 @@ namespace Crab
                     Console.WriteLine($"Loaded module {moduleType}");
                 }
             }
+            _modules.Add(name, _moduleLoadContext);
+        }
+
+        public bool unloadModule(string name){
+            if(_modules.ContainsKey(name)){
+                _modules[name].Unload();
+                _modules.Remove(name);
+                return true; 
+            }
+            return false;
         }
     }
 }

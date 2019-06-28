@@ -16,7 +16,7 @@ namespace Crab
         public async Task MainAsync()
         {
             _client = new DiscordSocketClient();
-            IConfiguration _config = ConfigGetter.Get();
+            IConfiguration _config = Utils.getConfig();
 
             var services = ConfigureServices();
             services.GetRequiredService<LogService>();
@@ -39,7 +39,7 @@ namespace Crab
                 .AddLogging()
                 .AddSingleton<LogService>()
                 // Extra
-                .AddSingleton(ConfigGetter.Get())
+                .AddSingleton(Utils.getConfig())
                 // Add additional services here...
                 .BuildServiceProvider();
         }

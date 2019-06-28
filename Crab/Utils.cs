@@ -4,11 +4,11 @@ using Newtonsoft.Json;
 using System.Net;
 using Discord;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Crab{
     public static class Utils
     {
-
         public const string PR_closed = "<:PRclosed:593477127005798407>";
         public const string PR_merged = "<:PRmerged:593477080256348190>";
         public const string PR_opened = "<:PRopened:593477178151403521>";
@@ -17,8 +17,37 @@ namespace Crab{
         public const string upvote = "<:upvote:593476691008159768>";
         public const string downvote = "<:downvote:593476558509834261>";
 
+        public static IConfiguration getConfig(){
+            return new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("config.json")
+                .Build();
+        }
+
+        public static string getModulePath(string name){
+            IConfiguration config = getConfig();
+            //boy oh boy
+            // two ?. cause i dunno if it will give me an empty enum or null
+            return config.GetSection("modules").GetChildren().Where(t => (t.GetValue<string>("name") == name))?.First()?.GetValue<string>("path");
+        }
+
+        public static bool isModule(string name){
+            IConfiguration config = getConfig();
+            return (config.GetSection("modules").GetChildren().Where(t => (t.GetValue<string>("name") == name))?.First() != null);
+        }
+
+        public static List<string> getModuleNames(){
+            IConfiguration config = getConfig();
+            List<string> names = new List<string>();
+            foreach (IConfigurationSection item in config.GetSection("modules").GetChildren())
+            {
+                names.Add(item.GetValue<string>("name"));
+            }
+            return names;
+        }
+
         public static bool isadmin(ulong id){
-            IConfiguration config = ConfigGetter.Get();
+            IConfiguration config = getConfig();
 
             foreach(IConfigurationSection admin in config.GetSection("devs").GetChildren()){
                 if(admin.Value == id.ToString()) return true;
@@ -29,7 +58,7 @@ namespace Crab{
         public static string idinfo(ulong id){
             //header
             string info = $"ID: {id}\n";
-            IConfiguration config = ConfigGetter.Get();
+            IConfiguration config = getConfig();
             
             //admin?
             info += "Admin: ";
@@ -45,7 +74,7 @@ namespace Crab{
 
         public static string listConfig(){
             string info = "";
-            foreach(IConfigurationSection section in ConfigGetter.Get().GetChildren()){
+            foreach(IConfigurationSection section in getConfig().GetChildren()){
                 info += ConfigSectionToString(section);
             }
             return info;
@@ -75,7 +104,7 @@ namespace Crab{
         public static string get_request(string uri, string accept)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            IConfiguration config = ConfigGetter.Get();
+            IConfiguration config = getConfig();
             request.Headers["Authorization"] = config["git_auth"];
             request.UserAgent = "Crab (@PaulRitter)";
             if(accept != ""){
@@ -102,7 +131,7 @@ namespace Crab{
         }
 
         public static string get_repo(string prefix){
-            IConfiguration config = ConfigGetter.Get();
+            IConfiguration config = getConfig();
             foreach (IConfigurationSection repo in config.GetSection("repos").GetChildren()){
                 if(repo.GetValue<string>("prefix") == prefix) return repo.GetValue<string>("repo");
             }
@@ -276,7 +305,7 @@ namespace Crab{
 
         public static List<string> get_all_admin_keys(){
             List<string> keys = new List<string>();
-            IConfiguration config = ConfigGetter.Get();
+            IConfiguration config = getConfig();
             foreach (IConfigurationSection admin in config.GetSection("devs").GetChildren())
             {
                 keys.Add(admin.Value);
