@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System.Collections.Generic;
+using Crab.Events;
 
 namespace Crab.Services
 {
@@ -27,9 +28,24 @@ namespace Crab.Services
             // Hook MessageReceived so we can process each message to see
             // if it qualifies as a command.
             _discord.MessageReceived += MessageReceivedAsync;
+
+            Console.WriteLine("CommandService subscribed to events");
+            ModuleEvents.onLoad += loadModuleAsync;
+            ModuleEvents.onUnload += unloadModuleAsync;
         }
 
-        public async void loadModuleAsync(Assembly ass)
+        public async Task loadAllModulesAsync()
+        {
+            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                await loadModuleAsync(ass);
+            }
+        }
+
+        public async void loadModuleAsync(object sender, ModuleEventArgs args)
+            => await loadModuleAsync(args.assembly);
+
+        public async Task loadModuleAsync(Assembly ass)
         {
             IEnumerable<ModuleInfo> modules = await _commands.AddModulesAsync(ass, _services);
             foreach (ModuleInfo module in modules)
@@ -45,16 +61,19 @@ namespace Crab.Services
             }
         }
 
-        public async void unloadModuleAsync(Assembly ass)
+        public async void unloadModuleAsync(object sender, ModuleEventArgs args)
+            => await unloadModuleAsync(args.assembly);
+
+        public async Task unloadModuleAsync(Assembly ass)
         {
             if(!loadedModules.ContainsKey(ass))
                 return;
             foreach (ModuleInfo mod in loadedModules[ass])
             {
                 await _commands.RemoveModuleAsync(mod);
-                loadedModules[ass].Remove(mod);
                 Console.WriteLine($"unloaded command module: {mod.Name}");
             }
+            loadedModules[ass] = new List<ModuleInfo>();
         }
 
         public async Task MessageReceivedAsync(SocketMessage rawMessage)

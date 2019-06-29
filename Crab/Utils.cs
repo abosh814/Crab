@@ -26,6 +26,8 @@ namespace Crab{
 
         public static string getModulePath(string name){
             IConfiguration config = getConfig();
+            if(!isModule(name))
+                return null;
             //boy oh boy
             // two ?. cause i dunno if it will give me an empty enum or null
             return config.GetSection("modules").GetChildren().Where(t => (t.GetValue<string>("name") == name))?.First()?.GetValue<string>("path");
@@ -33,7 +35,8 @@ namespace Crab{
 
         public static bool isModule(string name){
             IConfiguration config = getConfig();
-            return (config.GetSection("modules").GetChildren().Where(t => (t.GetValue<string>("name") == name))?.First() != null);
+            
+            return (config.GetSection("modules").GetChildren().Where(t => (t.GetValue<string>("name") == name)).Any());
         }
 
         public static List<string> getModuleNames(){

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using Crab.Events;
 
 namespace Crab
 {
@@ -41,21 +42,23 @@ namespace Crab
             }
             _modules.Add(name, _moduleLoadContext);
 
-            if(Core._command != null){
-                Core._command.loadModuleAsync(assembly);
-            }else{
-                Console.WriteLine("help why no commandhandler");
+            foreach (Assembly ass in _moduleLoadContext.Assemblies)
+            {
+                ModuleEventArgs args = new ModuleEventArgs();
+                args.name = name;
+                args.assembly = ass;
+                ModuleEvents.moduleLoaded(this, args);
             }
-
         }
 
         public bool unloadModule(string name){
             if(_modules.ContainsKey(name)){
-                if(Core._command != null){
-                    foreach (Assembly ass in _modules[name].Assemblies)
-                    {
-                        Core._command.unloadModuleAsync(ass);
-                    }
+                foreach (Assembly ass in _modules[name].Assemblies)
+                {
+                    ModuleEventArgs args = new ModuleEventArgs();
+                    args.name = name;
+                    args.assembly = ass;
+                    ModuleEvents.moduleUnloaded(this, args);
                 }
                 _modules[name].Unload();
                 _modules.Remove(name);

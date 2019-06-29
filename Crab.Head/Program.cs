@@ -1,4 +1,7 @@
-﻿namespace Crab
+﻿using Crab.Services;
+using System;
+
+namespace Crab
 {
     public static class InstanceHolder
     {
@@ -7,6 +10,7 @@
     public class Program
     {
         public static ModuleManager currentModuleManager;
+
         static void Main(string[] args)
         {
             currentModuleManager = new ModuleManager();
