@@ -25,3 +25,9 @@ Right now you need a prefix in front of your command, also the command syntax is
 [prefix][command] [param] [param] [...] (thanks discord.net)
 #### Porting over functionalities from MommIv2
 Basically anything from Reminders to DM code testing. EVERYTHING
+#### Expanding Core
+- needs_restart attribute for modules
+- nuke that ugly logging thing from discord.net and use sawmill or whatever its called
+- log more stuff, requires ^
+- make core return codes when properly shutdown so head can interpret them
+- buy beer
