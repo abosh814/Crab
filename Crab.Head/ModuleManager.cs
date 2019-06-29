@@ -13,44 +13,50 @@ namespace Crab
     {
         private Dictionary<string, AssemblyLoadContext> _modules = new Dictionary<string, AssemblyLoadContext>();
 
-        public void loadAllModules()
+        public MethodInfo loadAllModules()
             => loadAllModules(false);
 
-        public void loadAllModules(bool isInit)
+        public MethodInfo loadAllModules(bool isInit)
         {
             Console.WriteLine("Loading modules!");
-            IConfiguration config = Utils.getConfig();
-            foreach (IConfigurationSection item in config.GetSection("modules").GetChildren())
+            MethodInfo coreMethod = null;
+            foreach (string name in ConfigUtils.getAllModuleNames())
             {
-                loadModule(item.GetValue<string>("name"), isInit);
+                ModuleLoadResult mlr = loadModule(name, isInit);
+                if(mlr.coreLoadedMethod != null && isInit)
+                    coreMethod = mlr.coreLoadedMethod;
             }
+            return coreMethod;
         }
 
-        public bool loadModule(string name)
+        public ModuleLoadResult loadModule(string name)
             => loadModule(name, false);
 
-        private bool loadModule(string name, bool isInit)
+        private ModuleLoadResult loadModule(string name, bool isInit)
         {
-            if(!Utils.isModule(name))
-                return false;
+            if(!ConfigUtils.isModule(name))
+                return ModuleLoadResult.Fail;
 
-            if(Utils.needsRestart(name) && !isInit)
+            if(ConfigUtils.needsRestart(name) && !isInit)
                 //TODO
-                return false;
+                return ModuleLoadResult.Fail;
 
             unloadModule(name); //we dont need to pass isinit to here, since we are initializing
 
             AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
-            string modulePath = Utils.getModulePath(name);
+            string modulePath = ConfigUtils.getModulePath(name);
             Assembly assembly;
+            MethodInfo coreLoadedMethod = null;
             using (var file = File.OpenRead(modulePath))
             {
                 assembly = _moduleLoadContext.LoadFromStream(file);
-
-                foreach (var moduleType in assembly.GetTypes().Where(t => (t.GetInterface("CrabModule") != null)))
+                foreach (var moduleType in assembly.GetTypes().Where(t => (t.GetCustomAttribute(typeof(LogModule)) != null)))
                 {
                     //_sawmill.Debug("Found module {0}", moduleType);
                     Console.WriteLine($"Loaded module {moduleType}");
+                    if(moduleType.BaseType != typeof(CrabCore))
+                        continue;
+                    coreLoadedMethod = moduleType.GetMethod("loaded"); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
                 }
             }
             _modules.Add(name, _moduleLoadContext);
@@ -62,14 +68,14 @@ namespace Crab
                 args.assembly = ass;
                 ModuleEvents.moduleLoaded(this, args);
             }
-            return true;
+            return new ModuleLoadResult(true, coreLoadedMethod);;
         }
 
         public bool unloadModule(string name){
-            if(!Utils.isModule(name))
+            if(!ConfigUtils.isModule(name))
                 return false;
 
-            if(Utils.needsRestart(name))
+            if(ConfigUtils.needsRestart(name))
                 //modules that need restarts are vital and cannot be unloaded, only reloaded
                 return false;
 
@@ -87,5 +93,18 @@ namespace Crab
             }
             return false;
         }
+    }
+
+    public struct ModuleLoadResult
+    {
+        public static ModuleLoadResult Fail = new ModuleLoadResult(false,null);
+
+        public ModuleLoadResult(bool s, MethodInfo c)
+        {
+            success = s;
+            coreLoadedMethod = c;
+        }
+        public bool success;
+        public MethodInfo coreLoadedMethod;
     }
 }

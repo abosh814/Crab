@@ -4,7 +4,7 @@ using System;
 
 namespace Crab
 {
-    public class Basics : ModuleBase<SocketCommandContext>, CrabModule
+    public class Basics : ModuleBase<SocketCommandContext>
     {
         [Command("Hi")]
         public Task Hi()

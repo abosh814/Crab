@@ -3,7 +3,7 @@ using Discord.Commands;
 
 namespace Crab
 {
-    public class Botcontrol : ModuleBase<SocketCommandContext>, CrabModule
+    public class Botcontrol : ModuleBase<SocketCommandContext>
     {
         public void onLoad(){}
 
@@ -20,7 +20,7 @@ namespace Crab
         [Command("modules")]
         public Task listModules(){
             string res = "Available Modules:\n";
-            res += string.Join("\n",Utils.getModuleList());
+            res += string.Join("\n",ConfigUtils.getModuleList());
             return ReplyAsync(res);
         }
 
@@ -31,7 +31,7 @@ namespace Crab
             //unload specific module
             public Task unload(string modulename){
                 if(!Utils.isadmin(Context.User.Id)) return null; //admincheck
-                if(!Utils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
+                if(!ConfigUtils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
 
                 if(Program.currentModuleManager.unloadModule(modulename))
                 {
@@ -52,9 +52,9 @@ namespace Crab
             public Task reload(string modulename){
                 if(!Utils.isadmin(Context.User.Id)) return null; //admincheck
                 if(modulename == "all") return reloadAll(); //is it all?
-                if(!Utils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
+                if(!ConfigUtils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
 
-                if(Program.currentModuleManager.loadModule(modulename)){
+                if(Program.currentModuleManager.loadModule(modulename).success){
                     return ReplyAsync($"Reloaded module `{modulename}`");
                 }
                 else

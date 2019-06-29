@@ -10,7 +10,8 @@ using Crab.Events;
 
 namespace Crab.Services
 {
-    public class CommandHandlingService : CrabModule
+    [LogModule]
+    public class CommandHandlingService
     {
         private readonly CommandService _commands;
         private readonly DiscordSocketClient _discord;

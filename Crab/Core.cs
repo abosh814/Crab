@@ -9,16 +9,20 @@ using Crab.Services;
 
 namespace Crab
 {
-    public class Core : CrabModule
+    [LogModule]
+    public class Core : CrabCore
     {
         private DiscordSocketClient _client;
 
         public IServiceProvider _services;
 
+        public new static void loaded()
+            => new Core().MainAsync().GetAwaiter().GetResult();
+
         public async Task MainAsync()
         {
             _client = new DiscordSocketClient();
-            IConfiguration _config = Utils.getConfig();
+            IConfiguration _config = ConfigUtils.getConfig();
             _services = ConfigureServices();
             _services.GetRequiredService<LogService>();
             await _services.GetRequiredService<CommandHandlingService>().loadAllModulesAsync();
@@ -40,7 +44,7 @@ namespace Crab
                 .AddLogging()
                 .AddSingleton<LogService>()
                 // Extra
-                .AddSingleton(Utils.getConfig())
+                .AddSingleton(ConfigUtils.getConfig())
                 // Add additional services here...
                 .BuildServiceProvider();
         }

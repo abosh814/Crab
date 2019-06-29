@@ -1,5 +1,4 @@
-﻿using Crab.Services;
-using System;
+﻿using System.Reflection;
 
 namespace Crab
 {
@@ -14,9 +13,10 @@ namespace Crab
         static void Main(string[] args)
         {
             currentModuleManager = new ModuleManager();
-            currentModuleManager.loadAllModules(true);
+            MethodInfo coreMethod = currentModuleManager.loadAllModules(true);
 
-            new Core().MainAsync().GetAwaiter().GetResult();
+            coreMethod.Invoke(null, null);
+            //new Core().MainAsync().GetAwaiter().GetResult();
         }
     }
 }
