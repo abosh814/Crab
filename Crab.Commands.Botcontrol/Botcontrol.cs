@@ -20,7 +20,7 @@ namespace Crab
         [Command("modules")]
         public Task listModules(){
             string res = "Available Modules:\n";
-            res += string.Join("\n",Utils.getModuleNames());
+            res += string.Join("\n",Utils.getModuleList());
             return ReplyAsync(res);
         }
 
@@ -31,17 +31,17 @@ namespace Crab
             //unload specific module
             public Task unload(string modulename){
                 if(!Utils.isadmin(Context.User.Id)) return null; //admincheck
-                //if(modulename == "all") return unloadAll(); //is it all?
                 if(!Utils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
 
-                Program.currentModuleManager.unloadModule(modulename);
-                return ReplyAsync($"Unloaded module `{modulename}`");
+                if(Program.currentModuleManager.unloadModule(modulename))
+                {
+                    return ReplyAsync($"Unloaded module `{modulename}`");
+                }
+                else
+                {
+                    return ReplyAsync($"Couldn't unload module `{modulename}`");
+                }
             }
-
-            /*public Task unloadAll(){
-                Program.currentModuleManager.loadAllModules();
-                return ReplyAsync("Unloaded all modules");
-            }*/
         }
 
         [Group("reload")]
@@ -54,8 +54,13 @@ namespace Crab
                 if(modulename == "all") return reloadAll(); //is it all?
                 if(!Utils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
 
-                Program.currentModuleManager.loadModule(modulename);
-                return ReplyAsync($"Reloaded module `{modulename}`");
+                if(Program.currentModuleManager.loadModule(modulename)){
+                    return ReplyAsync($"Reloaded module `{modulename}`");
+                }
+                else
+                {
+                    return ReplyAsync($"Couldn't reload module {modulename}");
+                }
             }
 
             public Task reloadAll(){

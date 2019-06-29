@@ -23,8 +23,15 @@ namespace Crab
             }
         }
 
-        public void loadModule(string name)
+        public bool loadModule(string name)
         {
+            if(!Utils.isModule(name))
+                return false;
+
+            if(Utils.needsRestart(name))
+                //TODO
+                return false;
+
             unloadModule(name);
 
             AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
@@ -49,9 +56,17 @@ namespace Crab
                 args.assembly = ass;
                 ModuleEvents.moduleLoaded(this, args);
             }
+            return true;
         }
 
         public bool unloadModule(string name){
+            if(!Utils.isModule(name))
+                return false;
+
+            if(Utils.needsRestart(name))
+                //modules that need restarts are vital and cannot be unloaded, only reloaded
+                return false;
+
             if(_modules.ContainsKey(name)){
                 foreach (Assembly ass in _modules[name].Assemblies)
                 {
@@ -65,7 +80,6 @@ namespace Crab
                 return true; 
             }
             return false;
-
         }
     }
 }
