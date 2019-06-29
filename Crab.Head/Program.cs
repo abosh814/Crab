@@ -14,7 +14,7 @@ namespace Crab
         static void Main(string[] args)
         {
             currentModuleManager = new ModuleManager();
-            currentModuleManager.loadAllModules();
+            currentModuleManager.loadAllModules(true);
 
             new Core().MainAsync().GetAwaiter().GetResult();
         }

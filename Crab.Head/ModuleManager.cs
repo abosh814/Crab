@@ -14,25 +14,31 @@ namespace Crab
         private Dictionary<string, AssemblyLoadContext> _modules = new Dictionary<string, AssemblyLoadContext>();
 
         public void loadAllModules()
+            => loadAllModules(false);
+
+        public void loadAllModules(bool isInit)
         {
             Console.WriteLine("Loading modules!");
             IConfiguration config = Utils.getConfig();
             foreach (IConfigurationSection item in config.GetSection("modules").GetChildren())
             {
-                loadModule(item.GetValue<string>("name"));
+                loadModule(item.GetValue<string>("name"), isInit);
             }
         }
 
         public bool loadModule(string name)
+            => loadModule(name, false);
+
+        private bool loadModule(string name, bool isInit)
         {
             if(!Utils.isModule(name))
                 return false;
 
-            if(Utils.needsRestart(name))
+            if(Utils.needsRestart(name) && !isInit)
                 //TODO
                 return false;
 
-            unloadModule(name);
+            unloadModule(name); //we dont need to pass isinit to here, since we are initializing
 
             AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
             string modulePath = Utils.getModulePath(name);

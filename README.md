@@ -31,3 +31,6 @@ Basically anything from Reminders to DM code testing. EVERYTHING
 - log more stuff, requires ^
 - make core return codes when properly shutdown so head can interpret them
 - buy beer
+
+Notes
+- when core isn't loaded on init, head still successfully starts the Core class, this might be due to head referencing Core. investigate (if this seems dumb to you please tell my why im a beginner in .net)
