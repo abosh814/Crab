@@ -8,7 +8,7 @@ namespace Crab
     {
         [Command("Hi")]
         public Task Hi()
-            => ReplyAsync($"The modular loading i mean!");
+            => ReplyAsync($"Hello!");
 
         [Command("Who am I")]
         public Task Who()
