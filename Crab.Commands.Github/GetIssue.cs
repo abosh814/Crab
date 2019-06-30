@@ -3,6 +3,7 @@ using Discord.Commands;
 
 namespace Crab
 {
+    [LogModule]
     public class IssueModule : ModuleBase<SocketCommandContext>
     {
         public void onLoad(){}

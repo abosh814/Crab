@@ -3,6 +3,7 @@ using Discord.Commands;
 
 namespace Crab
 {
+    [LogModule]
     public class Botcontrol : ModuleBase<SocketCommandContext>
     {
         public void onLoad(){}
@@ -19,11 +20,14 @@ namespace Crab
 
         [Command("modules")]
         public Task listModules(){
+            if(!Utils.isadmin(Context.User.Id))
+                return null;
             string res = "Available Modules:\n";
             res += string.Join("\n",ConfigUtils.getModuleList());
             return ReplyAsync(res);
         }
 
+        [LogModule]
         [Group("unload")]
         public class UnloadModule : ModuleBase<SocketCommandContext>
         {
@@ -44,6 +48,7 @@ namespace Crab
             }
         }
 
+        [LogModule]
         [Group("reload")]
         public class ReloadModule : ModuleBase<SocketCommandContext>
         {

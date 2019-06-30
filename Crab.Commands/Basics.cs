@@ -4,6 +4,7 @@ using System;
 
 namespace Crab
 {
+    [LogModule]
     public class Basics : ModuleBase<SocketCommandContext>
     {
         [Command("Hi")]
@@ -18,6 +19,7 @@ namespace Crab
         public Task Say([Remainder] string message)
             => ReplyAsync($"{message}");
 
+        [LogModule]
         [Group("id")]
         public class IdModule : ModuleBase<SocketCommandContext>
         {
