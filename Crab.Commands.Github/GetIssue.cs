@@ -15,15 +15,15 @@ namespace Crab
 
         [Command("issue")]
         public Task getIssue(string issueid, string prefix){
-            string repo = Utils.get_repo(prefix);
+            string repo = GitUtils.get_repo(prefix);
             if(repo == null)
                 return ReplyAsync("Invalid prefix");
 
-            dynamic obj = Utils.get_json(Utils.github_url($"/repos/{repo}/issues/{issueid}"));
+            dynamic obj = GitUtils.get_json(GitUtils.github_url($"/repos/{repo}/issues/{issueid}"));
             if(obj == null)
                 return ReplyAsync("Issue not found");
 
-            return ReplyAsync(embed: Utils.embed_issue(obj, repo));
+            return ReplyAsync(embed: GitUtils.embed_issue(obj, repo));
         }
     }
 }
