@@ -1,6 +1,8 @@
 # Crab
 might as well call it MommIv3 at this point
 
+# I have to rework the moduleloader to handle depedencies cause rn everything is broken help
+
 ## About
 So yeah this is an attempt to remake [MommIv2](https://github.com/PJB3005/MoMMI) in .Net but better.
 It started as a challenge to myself but now it looks like it might actually be something so watch out!
