@@ -1,3 +1,10 @@
+using System.IO;
+using Newtonsoft.Json;
+using System.Net;
+using Discord;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+
 namespace Crab
 {
     public static class GitUtils
@@ -21,8 +28,7 @@ namespace Crab
         public static string get_request(string uri, string accept)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            IConfiguration config = ConfigUtils.getConfig();
-            request.Headers["Authorization"] = config["git_auth"];
+            request.Headers["Authorization"] = ConfigUtils.getGitAuth();
             request.UserAgent = "Crab (@PaulRitter)";
             if(accept != ""){
                 request.Accept = accept;

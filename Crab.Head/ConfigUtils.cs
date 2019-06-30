@@ -65,5 +65,10 @@ namespace Crab
             }
             return names;
         }
+
+        public static string getGitAuth()
+        {
+            return getConfig().GetValue<string>("git_auth");
+        }
     }
 }

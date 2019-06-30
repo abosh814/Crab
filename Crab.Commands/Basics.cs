@@ -32,8 +32,8 @@ namespace Crab
             [Command]
             public Task Other(string id){
                 if(id == "my")
-                    return ReplyAsync(Utils.idinfo(Context.User.Id));
-                return ReplyAsync(Utils.idinfo(Convert.ToUInt64(id)));
+                    return ReplyAsync(BasicsUtils.idinfo(Context.User.Id));
+                return ReplyAsync(BasicsUtils.idinfo(Convert.ToUInt64(id)));
             }
         }
 
@@ -41,7 +41,7 @@ namespace Crab
         public Task config()
         {
             if(Utils.isadmin(Context.User.Id))
-                return ReplyAsync(Utils.listConfig());
+                return ReplyAsync(BasicsUtils.listConfig());
             return null;
         }
     }
