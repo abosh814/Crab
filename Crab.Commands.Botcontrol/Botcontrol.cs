@@ -8,32 +8,26 @@ namespace Crab
     {
 
         [Command("modules")]
+        [AdminCommand]
         public Task listModules(){
-            if(!Utils.isadmin(Context.User.Id))
-                return null;
             string res = "Available Modules:\n";
             res += string.Join("\n",ConfigUtils.getModuleList());
             return ReplyAsync(res);
         }
 
-        [LogModule]
-        [Group("unload")]
-        public class UnloadModule : ModuleBase<SocketCommandContext>
-        {
-            [Command]
-            //unload specific module
-            public Task unload(string modulename){
-                if(!Utils.isadmin(Context.User.Id)) return null; //admincheck
-                if(!ConfigUtils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
+        [Command("unload")]
+        [AdminCommand]
+        //unload specific module
+        public Task unload(string modulename){
+            if(!ConfigUtils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
 
-                if(Program.currentModuleManager.unloadModule(modulename))
-                {
-                    return ReplyAsync($"Unloaded module `{modulename}`");
-                }
-                else
-                {
-                    return ReplyAsync($"Couldn't unload module `{modulename}`");
-                }
+            if(Program.currentModuleManager.unloadModule(modulename))
+            {
+                return ReplyAsync($"Unloaded module `{modulename}`");
+            }
+            else
+            {
+                return ReplyAsync($"Couldn't unload module `{modulename}`");
             }
         }
 
@@ -42,9 +36,9 @@ namespace Crab
         public class ReloadModule : ModuleBase<SocketCommandContext>
         {
             [Command]
+            [AdminCommand]
             //reload specific module
             public Task reload(string modulename){
-                if(!Utils.isadmin(Context.User.Id)) return null; //admincheck
                 if(modulename == "all") return reloadAll(); //is it all?
                 if(!ConfigUtils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
 
@@ -57,7 +51,7 @@ namespace Crab
                 }
             }
 
-            public Task reloadAll(){
+            private Task reloadAll(){
                 Program.currentModuleManager.loadAllModules();
                 return ReplyAsync("Reloaded all modules");
             }

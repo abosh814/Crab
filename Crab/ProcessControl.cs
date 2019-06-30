@@ -7,18 +7,16 @@ namespace Crab
     public class ProcessControl : ModuleBase<SocketCommandContext>
     {
         [Command("shutdown")]
+        [AdminCommand]
         public Task shutdown(){
-            if(!Utils.isadmin(Context.User.Id))
-                return null;
             ReplyAsync("Shutting down...");
             Core.exit(0);
             return null;
         }
 
         [Command("restart")]
+        [AdminCommand]
         public Task restart(){
-            if(!Utils.isadmin(Context.User.Id))
-                return null;
             ReplyAsync("Restarting...");
             Core.exit(1);
             return null;

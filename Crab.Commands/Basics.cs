@@ -37,12 +37,9 @@ namespace Crab
             }
         }
 
+        [AdminCommand]
         [Command("config")]
         public Task config()
-        {
-            if(Utils.isadmin(Context.User.Id))
-                return ReplyAsync(BasicsUtils.listConfig());
-            return null;
-        }
+            => ReplyAsync(BasicsUtils.listConfig());
     }
 }
