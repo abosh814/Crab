@@ -5,9 +5,7 @@ namespace Crab
 {
     [LogModule]
     public class IssueModule : ModuleBase<SocketCommandContext>
-    {
-        public void onLoad(){}
-        
+    {        
         [Command("issue")]
         public Task getIssue(string issueid){
             return getIssue(issueid, "");

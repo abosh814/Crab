@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System;
 
 namespace Crab
 {
@@ -15,7 +16,12 @@ namespace Crab
             currentModuleManager = new ModuleManager();
             MethodInfo coreMethod = currentModuleManager.loadAllModules(true);
 
-            coreMethod.Invoke(null, null);
+            int response;
+            do
+            {
+                response = (int)coreMethod.Invoke(null, null);
+                Console.WriteLine($"Core exited with code {response}");
+            } while (response == 1);
             //new Core().MainAsync().GetAwaiter().GetResult();
         }
     }

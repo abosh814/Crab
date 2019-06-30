@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Crab.Services;
+using Microsoft.VisualStudio.Threading;
 
 namespace Crab
 {
@@ -16,10 +17,10 @@ namespace Crab
 
         public IServiceProvider _services;
 
-        public new static void loaded()
+        public new static int loaded()
             => new Core().MainAsync().GetAwaiter().GetResult();
 
-        public async Task MainAsync()
+        public async Task<int> MainAsync()
         {
             _client = new DiscordSocketClient();
             IConfiguration _config = ConfigUtils.getConfig();
@@ -30,7 +31,12 @@ namespace Crab
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
 
-            await Task.Delay(-1);
+            if(exitEvent != null)
+                exitEvent.Set();
+            exitEvent = new AsyncManualResetEvent();
+            await exitEvent.WaitAsync();
+            await _client.LogoutAsync();
+            return exitCode;
         }
 
         private IServiceProvider ConfigureServices()
@@ -47,6 +53,15 @@ namespace Crab
                 .AddSingleton(ConfigUtils.getConfig())
                 // Add additional services here...
                 .BuildServiceProvider();
+        }
+
+        private static int exitCode;
+        private static AsyncManualResetEvent exitEvent;
+
+        public static void exit(int code)
+        {
+            exitCode = code;
+            exitEvent.Set();
         }
     }
 }

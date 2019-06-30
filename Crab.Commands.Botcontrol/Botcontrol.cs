@@ -4,19 +4,8 @@ using Discord.Commands;
 namespace Crab
 {
     [LogModule]
-    public class Botcontrol : ModuleBase<SocketCommandContext>
+    public class ModuleControl : ModuleBase<SocketCommandContext>
     {
-        public void onLoad(){}
-
-        [Command("shutdown")]
-        public Task shutdown(){
-            if(!Utils.isadmin(Context.User.Id))
-                return null;
-            ReplyAsync("Shutting down...");
-            Context.Client.LogoutAsync();
-            System.Environment.Exit(0);
-            return null;
-        }
 
         [Command("modules")]
         public Task listModules(){
