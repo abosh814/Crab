@@ -11,14 +11,14 @@ namespace Crab
 {
     public class ModuleManager
     {
-        private Dictionary<string, AssemblyLoadContext> _modules = new Dictionary<string, AssemblyLoadContext>();
+        private Dictionary<string, LoadedModule> _modules = new Dictionary<string, LoadedModule>();
 
         public MethodInfo loadAllModules()
             => loadAllModules(false);
 
         public MethodInfo loadAllModules(bool isInit)
         {
-            Console.WriteLine("Loading modules!");
+            Console.WriteLine("Loading all modules!");
             MethodInfo coreMethod = null;
             foreach (string name in ConfigUtils.getAllModuleNames())
             {
@@ -41,57 +41,110 @@ namespace Crab
                 //TODO
                 return ModuleLoadResult.Fail;
 
-            unloadModule(name); //we dont need to pass isinit to here, since we are initializing
+            Console.WriteLine($"Starting to load {name}");
+            ModuleUnloadResult unloadRes = unloadModule(name); //we dont need to pass isinit to here, since we are initializing
 
-            AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
-            string modulePath = ConfigUtils.getModulePath(name);
-            Assembly assembly;
+            List<string> toLoad = new List<string>();
+            toLoad.Add(name); //first cause we need to properly handle dependencies
+            toLoad.AddRange(unloadRes.leechesUnloaded);
             MethodInfo coreLoadedMethod = null;
-            using (var file = File.OpenRead(modulePath))
+            AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
+            foreach (string module in toLoad)
             {
-                assembly = _moduleLoadContext.LoadFromStream(file);
-                foreach (var moduleType in assembly.GetTypes().Where(t => (t.GetCustomAttribute(typeof(LogModule)) != null)))
+                Console.WriteLine($"Loading module {module}");
+                string modulePath = ConfigUtils.getModulePath(module);
+                Assembly assembly;
+                using (var file = File.OpenRead(modulePath))
                 {
-                    //_sawmill.Debug("Found module {0}", moduleType);
-                    Console.WriteLine($"Loaded module {moduleType}");
-                    if(moduleType.BaseType != typeof(CrabCore))
-                        continue;
-                    coreLoadedMethod = moduleType.GetMethod("loaded"); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
+                    assembly = _moduleLoadContext.LoadFromStream(file);
+                    //getting the coreLoadedMethod and logging
+                    foreach (var moduleType in assembly.GetTypes())
+                    {
+                        if(moduleType.GetCustomAttribute(typeof(LogModule)) != null) //logging
+                            Console.WriteLine($"Loaded module {moduleType}");
+                        if(moduleType.BaseType == typeof(CrabCore)) //coremethod
+                            coreLoadedMethod = moduleType.GetMethod("loaded"); //this should never fail cause moduleType NEEDS to have been inherited from CrabCore
+                    }
+                }
+
+                foreach (Assembly ass in _moduleLoadContext.Assemblies)
+                {
+                    ModuleEventArgs args = new ModuleEventArgs();
+                    args.name = module;
+                    args.assembly = ass;
+                    ModuleEvents.moduleLoaded(this, args);
                 }
             }
-            _modules.Add(name, _moduleLoadContext);
 
-            foreach (Assembly ass in _moduleLoadContext.Assemblies)
+            foreach (string dependency in ConfigUtils.getDependencies(name))
             {
-                ModuleEventArgs args = new ModuleEventArgs();
-                args.name = name;
-                args.assembly = ass;
-                ModuleEvents.moduleLoaded(this, args);
+                Console.WriteLine($"Loading dependency {dependency}");
+                if(!_modules.ContainsKey(dependency))
+                    continue;
+                Console.WriteLine($"Found AssemblyLoadContext: {_modules[dependency].context.Name}");
+                foreach (Assembly ass in _modules[dependency].context.Assemblies)
+                {
+                    Console.WriteLine($"Loading assembly {ass.GetName().Name}");
+                    if(AppDomain.CurrentDomain.GetAssemblies().Where(t => (t == ass)).Any()) Console.WriteLine("something fucky is afoot");
+                    _moduleLoadContext.LoadFromAssemblyName(ass.GetName());
+                }
+                _modules[dependency].leeches.Add(name);
             }
-            return new ModuleLoadResult(true, coreLoadedMethod);;
+
+            LoadedModule lm = new LoadedModule(_moduleLoadContext);
+            ModuleEvents.onUnload += lm.leechUnloadedHook;
+
+            _modules.Add(name, lm);
+            Console.WriteLine($"Finished loading {name}");
+            return new ModuleLoadResult(true, coreLoadedMethod);
         }
 
-        public bool unloadModule(string name){
+        public ModuleUnloadResult unloadModule(string name){
             if(!ConfigUtils.isModule(name))
-                return false;
+                return ModuleUnloadResult.Fail;
 
             if(ConfigUtils.needsRestart(name))
                 //modules that need restarts are vital and cannot be unloaded, only reloaded
-                return false;
+                return ModuleUnloadResult.Fail;
 
             if(_modules.ContainsKey(name)){
-                foreach (Assembly ass in _modules[name].Assemblies)
+                List<string> unloadedLeeches = unloadLeeches(name);
+
+                foreach (Assembly ass in _modules[name].context.Assemblies)
                 {
                     ModuleEventArgs args = new ModuleEventArgs();
                     args.name = name;
                     args.assembly = ass;
                     ModuleEvents.moduleUnloaded(this, args);
                 }
-                _modules[name].Unload();
+                _modules[name].context.Unload();
                 _modules.Remove(name);
-                return true; 
+                
+                ModuleUnloadResult res = new ModuleUnloadResult(true);
+                res.leechesUnloaded = unloadedLeeches;
+                return res;
             }
-            return false;
+            return ModuleUnloadResult.Fail;
+        }
+
+        private List<string> unloadLeeches(string name)
+        {
+            if(!ConfigUtils.isModule(name))
+                return new List<string>();
+
+            if(_modules.ContainsKey(name)){
+                List<string> unloaded = new List<string>();
+                foreach (string leech in _modules[name].leeches)
+                {
+                    ModuleUnloadResult res = unloadModule(leech);
+                    if(res.success){
+                        unloaded.Add(leech);
+                        unloaded.AddRange(res.leechesUnloaded);
+                    }
+                }
+                return unloaded;
+            }
+            return new List<string>();
         }
     }
 
@@ -106,5 +159,33 @@ namespace Crab
         }
         public bool success;
         public MethodInfo coreLoadedMethod;
+    }
+
+    public struct ModuleUnloadResult
+    {
+        public static ModuleUnloadResult Fail = new ModuleUnloadResult(false);
+        public bool success;
+        public List<string> leechesUnloaded;
+        public ModuleUnloadResult(bool s)
+        {
+            success = s;
+            leechesUnloaded = new List<string>();
+        }
+    }
+
+    public struct LoadedModule
+    {
+        public LoadedModule(AssemblyLoadContext c)
+        {
+            context = c;
+            leeches = new List<string>();
+        }
+        public AssemblyLoadContext context;
+        public List<string> leeches; //points to modules in _modules that depend on this one
+
+        public void leechUnloadedHook(object sender, ModuleEventArgs args)
+        {
+            if(leeches.Contains(args.name)) leeches.Remove(args.name);
+        }
     }
 }

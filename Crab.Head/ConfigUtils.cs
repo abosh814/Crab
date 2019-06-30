@@ -65,5 +65,20 @@ namespace Crab
             }
             return names;
         }
+
+        public static List<string> getDependencies(string name)
+        {
+            if(!isModule(name))
+                return new List<string>();
+            IConfigurationSection all_deps = getConfig().GetSection("modules").GetChildren().Where(t => (t.GetValue<string>("name") == name)).First().GetSection("depends_on");
+            if(all_deps == null)
+                return new List<string>();
+            List<string> res = new List<string>();
+            foreach(IConfigurationSection dependency in all_deps.GetChildren())
+            {
+                res.Add(dependency.Value);
+            }
+            return res;
+        }
     }
 }
