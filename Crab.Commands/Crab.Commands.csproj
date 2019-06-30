@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Crab\Crab.csproj" />
+    <ProjectReference Include="..\Crab.Head\Crab.Head.csproj" />
   </ItemGroup>
 
 </Project>
