@@ -1,10 +1,8 @@
 # Crab
-might as well call it MommIv3 at this point
-
-# I have to rework the moduleloader to handle depedencies cause rn everything is broken help
+might as well call it MoMMIv3 at this point
 
 ## About
-So yeah this is an attempt to remake [MommIv2](https://github.com/PJB3005/MoMMI) in .Net but better.
+So yeah this is an attempt to remake [MoMMIv2](https://github.com/PJB3005/MoMMI) in .Net but better.
 It started as a challenge to myself but now it looks like it might actually be something so watch out!
 
 ## Features
@@ -15,24 +13,25 @@ Since the config can be changed at runtime, you could even add new modules (for 
 #### Config can be changed at runtime
 Yeah i mean pretty self-explanatory
 Config holds everything from API auth code, admin discord keys to modules and repositories
+Is still json rn, but that can change
 #### Commands (so far)
 - alotta bs testing commands (imma make this list a bit better someday)
 - git issues like the original mommer (w/ repo prefixes)
 - botcontrol like restart, shutdown, reload [module]
+- when?
+#### Regex Commands
+yeah i gottem
 
 ## PLANNED
 its brewing...
-#### Regex Commands
-Right now you need a prefix in front of your command, also the command syntax is very static:
-[prefix][command] [param] [param] [...] (thanks discord.net)
-#### Porting over functionalities from MommIv2
+#### Porting over functionalities from MoMMIv2
 Basically anything from Reminders to DM code testing. EVERYTHING
 #### Expanding Core
+- Making every module an instance so it can handle its own data and can be (de)serialized when loading/unloading
+- Writing my own Command Service so i dont have to use the gunky regex solution i got rn, requires ^
 - needs_restart attribute for modules
 - nuke that ugly logging thing from discord.net and use sawmill or whatever its called
 - log more stuff, requires ^
-- make core return codes when properly shutdown so head can interpret them
 - buy beer
-
-Notes
-- when core isn't loaded on init, head still successfully starts the Core class, this might be due to head referencing Core. investigate (if this seems dumb to you please tell my why im a beginner in .net)
+#### OnIssue, OnPR, webhooks basically
+idunno someday, its fucky weird
