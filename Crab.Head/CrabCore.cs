@@ -6,9 +6,4 @@ namespace Crab
     {
         public static void loaded(){}
     }
-
-    public class LogModule : Attribute
-    {
-
-    }
 }
