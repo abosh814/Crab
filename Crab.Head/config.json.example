@@ -6,6 +6,10 @@
 	],
 	"modules": [
 		{
+			"name": "Core",
+			"path": "../Crab/bin/Debug/netcoreapp3.0/Crab.dll"
+		},
+		{
 			"name": "Commands",
 			"path": "../Crab.Commands/bin/Debug/netcoreapp3.0/Crab.Commands.dll"
 		},
@@ -18,8 +22,8 @@
 			"path": "../Crab.Commands.Github/bin/Debug/netcoreapp3.0/Crab.Commands.Github.dll"
 		},
 		{
-			"name": "Core",
-			"path": "../Crab/bin/Debug/netcoreapp3.0/Crab.dll"
+			"name": "Commands.Fun",
+			"path": "../Crab.Commands.Fun/bin/Debug/netcoreapp3.0/Crab.Commands.Fun.dll"
 		}
 	],
 	"repos": [
