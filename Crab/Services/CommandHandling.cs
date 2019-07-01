@@ -7,6 +7,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System.Collections.Generic;
 using Crab.Events;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Crab.Services
 {
@@ -17,6 +19,7 @@ namespace Crab.Services
         private readonly DiscordSocketClient _discord;
         private readonly IServiceProvider _services;
         private Dictionary<Assembly, List<ModuleInfo>> loadedModules = new Dictionary<Assembly, List<ModuleInfo>>();
+        private List<RegexCommand> regexCommands = new List<RegexCommand>();
 
         public CommandHandlingService(IServiceProvider services)
         {
@@ -30,7 +33,6 @@ namespace Crab.Services
             // if it qualifies as a command.
             _discord.MessageReceived += MessageReceivedAsync;
 
-            Console.WriteLine("CommandService subscribed to events");
             ModuleEvents.onLoad += loadModuleAsync;
             ModuleEvents.onUnload += unloadModuleAsync;
         }
@@ -48,6 +50,7 @@ namespace Crab.Services
 
         public async Task loadModuleAsync(Assembly ass)
         {
+            //registering commands
             IEnumerable<ModuleInfo> modules = await _commands.AddModulesAsync(ass, _services);
             foreach (ModuleInfo module in modules)
             {
@@ -59,7 +62,19 @@ namespace Crab.Services
                     loadedModules[ass].Add(module);
                 }
                 Console.WriteLine($"loaded command module: {module.Name}");
+
+                foreach (CommandInfo com in module.Commands)
+                {
+                    foreach (Attribute att in com.Attributes.Where(t => (t.GetType() == typeof(RegexAlias))))
+                    {
+                        Console.WriteLine($"found regex command: {com.Name}");
+                        RegexAlias regex = (RegexAlias)att;
+                        regexCommands.Add(new RegexCommand(regex.pattern,com.Name,ass));
+                    }
+                }
             }
+
+            
         }
 
         public async void unloadModuleAsync(object sender, ModuleEventArgs args)
@@ -74,6 +89,15 @@ namespace Crab.Services
                 await _commands.RemoveModuleAsync(mod);
                 Console.WriteLine($"unloaded command module: {mod.Name}");
             }
+
+            List<RegexCommand> toRemove = new List<RegexCommand>();
+            foreach (RegexCommand com in regexCommands)
+            {
+                if(com.assembly == ass)
+                    toRemove.Add(com);
+            }
+            foreach (RegexCommand com in toRemove){ regexCommands.Remove(com); }
+
             loadedModules[ass] = new List<ModuleInfo>();
         }
 
@@ -82,6 +106,13 @@ namespace Crab.Services
             // Ignore system messages, or messages from other bots
             if (!(rawMessage is SocketUserMessage message)) return;
             if (message.Source != MessageSource.User) return;
+
+            RegexCommandResult regexCommand = await tryRegex(message.Content);
+            if(regexCommand != null){
+                Console.WriteLine($"trying out {regexCommand.toCommand()}");
+                await _commands.ExecuteAsync(new SocketCommandContext(_discord, message), regexCommand.toCommand(), _services);
+                return;
+            }
 
             // This value holds the offset where the prefix ends
             var argPos = 0;
@@ -116,6 +147,59 @@ namespace Crab.Services
                 mentions += $"<@!{key}>";
             }
             await context.Channel.SendMessageAsync($"{mentions} we got an error");
+        }
+
+        private async Task<RegexCommandResult> tryRegex(string input)
+        {
+            Console.WriteLine($"Trying regex for '{input}'");
+            foreach (RegexCommand com in regexCommands)
+            {
+                Console.Write($"pattern: {com.pattern} - ");
+                Match match = Regex.Match(input, com.pattern);
+                if(match.Success){
+                    Console.WriteLine("success!");
+                    return new RegexCommandResult(match, com);
+                }
+                Console.WriteLine("failure");
+            }
+            return null;
+        }
+    }
+
+    
+    public class RegexCommand
+    {
+        public string pattern;
+        public string command;
+        public Assembly assembly; //for unloading
+        public RegexCommand(string p, string c, Assembly a)
+        {
+            pattern = p;
+            command = c;
+            assembly = a;
+        }
+    }
+
+    public class RegexCommandResult
+    {
+        Match match;
+        RegexCommand regexC;
+        public RegexCommandResult(Match m, RegexCommand rc)
+        {
+            match = m;
+            regexC = rc;
+        }
+
+        public string toCommand(){
+            List<string> res = new List<string>();
+            res.Add(regexC.command);
+            List<Group> groups = match.Groups.Values.ToList();
+            groups.RemoveAt(0);
+            foreach (Group group in groups)
+            {
+                res.Add(group.Value);
+            }
+            return String.Join(" ", res);
         }
     }
 }

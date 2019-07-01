@@ -5,14 +5,16 @@ namespace Crab
 {
     [LogModule]
     public class IssueModule : ModuleBase<SocketCommandContext>
-    {        
+    {
         [Command("issue")]
+        [RegexAlias("\\[(\\d+)\\]")]
         public Task getIssue(string issueid){
-            return getIssue(issueid, "");
+            return getIssue("", issueid);
         }
 
         [Command("issue")]
-        public Task getIssue(string issueid, string prefix){
+        [RegexAlias("\\[(\\w+)#(\\d+)\\]")]
+        public Task getIssue(string prefix, string issueid){
             string repo = GitUtils.get_repo(prefix);
             if(repo == null)
                 return ReplyAsync("Invalid prefix");

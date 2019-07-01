@@ -50,13 +50,13 @@ namespace Crab
             using (var file = File.OpenRead(modulePath))
             {
                 assembly = _moduleLoadContext.LoadFromStream(file);
-                foreach (var moduleType in assembly.GetTypes().Where(t => (t.GetCustomAttribute(typeof(LogModule)) != null)))
+                foreach (var moduleType in assembly.GetTypes())
                 {
                     //_sawmill.Debug("Found module {0}", moduleType);
-                    Console.WriteLine($"Loaded module {moduleType}");
-                    if(moduleType.BaseType != typeof(CrabCore))
-                        continue;
-                    coreLoadedMethod = moduleType.GetMethod("loaded"); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
+                    if(moduleType.GetCustomAttribute(typeof(LogModule)) != null)
+                        Console.WriteLine($"Loaded module {moduleType}");
+                    if(moduleType.BaseType == typeof(CrabCore))
+                        coreLoadedMethod = moduleType.GetMethod("loaded"); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
                 }
             }
             _modules.Add(name, _moduleLoadContext);
