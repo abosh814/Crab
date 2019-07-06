@@ -86,11 +86,11 @@
         },
         {
             "label": "Full Launch",
-            "command": "launch",
-            "type": "process",
+            "type": "shell",
             "options": {
                 "cwd": "${workspaceFolder}/.vscode"
             },
+            "command": "launch",
             "problemMatcher": "$tsc",
             "group": {
                 "kind": "build",
