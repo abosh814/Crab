@@ -1,0 +1,5 @@
+(cd ../Crab && dotnet build)
+(cd ../Crab.Commands && dotnet build)
+(cd ../Crab.Commands.Botcontrol && dotnet build)
+(cd ../Crab.Commands.Github && dotnet build)
+(cd ../Crab.Head && dotnet run)
