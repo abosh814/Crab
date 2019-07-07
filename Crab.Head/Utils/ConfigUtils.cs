@@ -18,10 +18,15 @@ namespace Crab
         }
 
         public static List<string> getAllModuleNames()
+            => getAllModuleNames(false);
+
+        public static List<string> getAllModuleNames(bool ignore_not_on_init_modules)
         {
             List<string> names = new List<string>();
             foreach (IConfigurationSection module in getConfig().GetSection("modules").GetChildren())
             {
+                if(module.GetValue<bool>("dont_load_on_init"))
+                    continue;
                 names.Add(module.GetValue<string>("name"));
             }
             return names;

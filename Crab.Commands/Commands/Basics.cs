@@ -1,45 +1,38 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using System;
+using System.Text.RegularExpressions;
+using Crab.Commands;
 
 namespace Crab
 {
     [LogModule]
-    public class Basics : ModuleBase<SocketCommandContext>
+    public class Basics : CrabCommandModule
     {
-        [Command("Hi")]
-        public Task Hi()
-            => ReplyAsync($"Hello!");
+        [CrabCommand("Hi")]
+        public Task Hi(Match m, SocketCommandContext context)
+            => context.Channel.SendMessageAsync($"Hello!");
 
-        [Command("Who am I")]
-        public Task Who()
-            => ReplyAsync($"You are {Context.User.Username}.");
+        [CrabCommand("Who am I")]
+        public Task Who(Match m, SocketCommandContext context)
+            => context.Channel.SendMessageAsync($"You are {context.User.Username}.");
 
-        [Command("Say")]
-        public Task Say([Remainder] string message)
-            => ReplyAsync($"{message}");
+        [CrabCommand("say .*")]
+        public Task Say(Match m, SocketCommandContext context)
+            => context.Channel.SendMessageAsync($"{m.Groups[1]}");
 
-        [LogModule]
-        [Group("id")]
-        public class IdModule : ModuleBase<SocketCommandContext>
-        {
-
-            [Command]
-            public Task Other(){
-                return ReplyAsync("You need to specify an ID");
-            }
-
-            [Command]
-            public Task Other(string id){
-                if(id == "my")
-                    return ReplyAsync(BasicsUtils.idinfo(Context.User.Id));
-                return ReplyAsync(BasicsUtils.idinfo(Convert.ToUInt64(id)));
-            }
+        [CrabCommand("id (my|\\d*)")]
+        public Task Id(Match m, SocketCommandContext context){
+            if(m.Groups.Count <= 1 || m.Groups[1].Value == "")
+                return context.Channel.SendMessageAsync("You need to specify an ID");
+            if(m.Groups[1].Value == "my")
+                return context.Channel.SendMessageAsync(BasicsUtils.idinfo(context.User.Id));
+            return context.Channel.SendMessageAsync(BasicsUtils.idinfo(Convert.ToUInt64(m.Groups[1].Value)));
         }
 
-        [AdminCommand]
-        [Command("config")]
-        public Task config()
-            => ReplyAsync(BasicsUtils.listConfig());
+        //[AdminCommand]
+        [CrabCommand("config")]
+        public Task config(Match m, SocketCommandContext context)
+            => context.Channel.SendMessageAsync(BasicsUtils.listConfig());
     }
 }

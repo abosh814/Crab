@@ -11,7 +11,7 @@ namespace Crab
 {
     public class ModuleManager
     {
-        private Dictionary<string, AssemblyLoadContext> _modules = new Dictionary<string, AssemblyLoadContext>();
+        public Dictionary<string, AssemblyLoadContext> _modules = new Dictionary<string, AssemblyLoadContext>();
 
         public MethodInfo loadAllModules()
             => loadAllModules(false);
@@ -20,7 +20,7 @@ namespace Crab
         {
             Console.WriteLine("Loading modules!");
             MethodInfo coreMethod = null;
-            foreach (string name in ConfigUtils.getAllModuleNames())
+            foreach (string name in ConfigUtils.getAllModuleNames(isInit))
             {
                 ModuleLoadResult mlr = loadModule(name, isInit);
                 if(mlr.coreLoadedMethod != null && isInit)

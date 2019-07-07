@@ -15,15 +15,18 @@
 		},
 		{
 			"name": "Commands.Botcontrol",
-			"path": "../Crab.Commands.Botcontrol/bin/Debug/netcoreapp3.0/Crab.Commands.Botcontrol.dll"
+			"path": "../Crab.Commands.Botcontrol/bin/Debug/netcoreapp3.0/Crab.Commands.Botcontrol.dll",
+			"dont_load_on_init": true
 		},
 		{
 			"name": "Commands.Github",
-			"path": "../Crab.Commands.Github/bin/Debug/netcoreapp3.0/Crab.Commands.Github.dll"
+			"path": "../Crab.Commands.Github/bin/Debug/netcoreapp3.0/Crab.Commands.Github.dll",
+			"dont_load_on_init": true
 		},
 		{
 			"name": "Commands.Fun",
-			"path": "../Crab.Commands.Fun/bin/Debug/netcoreapp3.0/Crab.Commands.Fun.dll"
+			"path": "../Crab.Commands.Fun/bin/Debug/netcoreapp3.0/Crab.Commands.Fun.dll",
+			"dont_load_on_init": true
 		}
 	],
 	"repos": [

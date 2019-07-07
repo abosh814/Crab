@@ -7,6 +7,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Crab.Services;
 using Microsoft.VisualStudio.Threading;
+using Crab.Commands;
 
 namespace Crab
 {
@@ -26,7 +27,7 @@ namespace Crab
             IConfiguration _config = ConfigUtils.getConfig();
             _services = ConfigureServices();
             _services.GetRequiredService<LogService>();
-            await _services.GetRequiredService<CommandHandlingService>().loadAllModulesAsync();
+            _services.GetRequiredService<CommandHandler>().loadAllModulesAsync();
 
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
@@ -45,7 +46,7 @@ namespace Crab
                 // Base
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
-                .AddSingleton<CommandHandlingService>()
+                .AddSingleton<CommandHandler>()
                 // Logging
                 .AddLogging()
                 .AddSingleton<LogService>()

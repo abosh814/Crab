@@ -9,12 +9,16 @@ namespace Crab
     }
     public class Program
     {
-        public static ModuleManager currentModuleManager;
+        public readonly static ModuleManager currentModuleManager = new ModuleManager();
 
         static void Main(string[] args)
         {
-            currentModuleManager = new ModuleManager();
             MethodInfo coreMethod = currentModuleManager.loadAllModules(true);
+
+            if(coreMethod == null){
+                Console.WriteLine("PANIC EXIT, NO COREMETHOD FOUND");
+                return;
+            }
 
             int response;
             do

@@ -6,6 +6,9 @@ using System;
 using Discord.WebSocket;
 using Crab.Events;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Discord;
 
 namespace Crab.Commands
 {
@@ -32,9 +35,12 @@ namespace Crab.Commands
             _loadedModules = new Dictionary<Assembly, List<CommandModule>>();
 
             //populate it again
-            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var item in Program.currentModuleManager._modules)
             {
-                await loadModuleAsync(ass);
+                foreach (Assembly ass in item.Value.Assemblies)
+                {
+                    await loadModuleAsync(ass);
+                }
             }
         }
 
@@ -45,17 +51,20 @@ namespace Crab.Commands
         {
             //get all Commands in an assembly TODO
             //registering commands
-            foreach (CommandModule module in modules)
+            foreach (Type module in ass.GetTypes().Where(t => (t.BaseType == typeof(CrabCommandModule))))
             {
+                CommandModule c_module = new CommandModule(module);
+                Console.WriteLine("I reached line");
                 if(!_loadedModules.ContainsKey(ass)){
-                    List<ModuleInfo> list = new List<ModuleInfo>();
-                    list.Add(module);
+                    List<CommandModule> list = new List<CommandModule>();
+                    list.Add(c_module);
                     _loadedModules.Add(ass, list);
                 }else{
-                    _loadedModules[ass].Add(module);
+                    _loadedModules[ass].Add(c_module);
                 }
-                Console.WriteLine($"loaded command module: {module.Name}");
+                Console.WriteLine($"loaded command module: {c_module.Name}");
             }
+            Console.WriteLine($"Finished loading all command modules");
         }
 
         public async void unloadModuleAsync(object sender, ModuleEventArgs args)
@@ -86,10 +95,13 @@ namespace Crab.Commands
             // Perform the execution of the command. In this method,
             // the command service will perform precondition and parsing check
             // then execute the command if one is matched.
+            Console.WriteLine($"received command {message}");
             foreach (var assembly in _loadedModules)
             {
+                Console.WriteLine($"iterating {assembly.Key.GetName().Name}");
                 foreach (CommandModule module in assembly.Value)
                 {
+                    Console.WriteLine($"trying module {module.Name}");
                     if(await module.tryExecute(context))
                         return;
                 }
@@ -99,10 +111,13 @@ namespace Crab.Commands
 
     public class CommandModule
     {
+        //have modules be able to have requirements TODO
         public async Task<bool> tryExecute(SocketCommandContext context)
         {
             foreach (Command command in _commands)
             {
+                Console.WriteLine($"trying command {command._aliases.First()}");
+
                 if(await command.tryExecute(context))
                     return true;
             }
@@ -114,6 +129,20 @@ namespace Crab.Commands
             Name = n;
             _commands = commands;
         }
+        public CommandModule(Type module)
+        {
+            Name = module.Name;
+            _commands = new List<Command>();
+
+            foreach (MethodInfo func in module.GetMethods())
+            {
+                if(!Command.isCommand(func))
+                    continue;
+
+                Console.WriteLine($"{func.Name} is a command");
+                _commands.Add(new Command(func));
+            }
+        }
 
         public readonly string Name;
         private readonly List<Command> _commands;
@@ -121,14 +150,35 @@ namespace Crab.Commands
 
     public class Command
     {
+        public Command(MethodInfo method)
+        {
+            foreach (var att in method.GetCustomAttributes())
+            {
+                switch (att)
+                {
+                    case CrabCommandAttribute command:
+                        Console.WriteLine($"found alias {command.pattern}!");
+                        _aliases.Add(command.pattern);
+                        break;
+                    //TODO
+                    default:
+                        break;
+                }
+            }
+        }
+        public static bool isCommand(MethodInfo method)
+             => method.GetCustomAttribute(typeof(CrabCommandAttribute)) != null;
         public async Task<bool> tryExecute(SocketCommandContext context)
         {
             //try requirements
+            Console.WriteLine("Hi i reached this code");
 
             foreach (string alias in _aliases)
             {
+                Console.WriteLine($"checking {context.Message.Content} with {alias}");
                 Match match = Regex.Match(context.Message.Content, alias);
                 if(match.Success){
+                    Console.WriteLine("success!");
                     //try execute func with match & context TODO
                     //also make it async
                     return true;
