@@ -1,4 +1,5 @@
 using Discord.WebSocket;
+using Discord;
 
 namespace Crab.Commands
 {
@@ -6,7 +7,7 @@ namespace Crab.Commands
     {
         public readonly DiscordSocketClient Crab;
         //public SocketGuild Guild { get; }
-        public ISocketMessageChannel Channel; //this can be changed to allow [DMResponse] attribute to change the channel to a dm channel
+        public IMessageChannel Channel; //this can be changed to allow [DMResponse] attribute to change the channel to a dm channel
         
         public readonly SocketUser Invoker;
         public readonly SocketUserMessage Message;

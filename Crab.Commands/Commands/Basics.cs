@@ -8,10 +8,14 @@ namespace Crab
     [LogModule]
     public class Basics : CrabCommandModule
     {
+        [CrabCommand("Crab")]
+        public static Task Crab(Match m, CommandContext context)
+            => context.Channel.SendMessageAsync("Thats me!");
+
         [MentionOnly]
         [CrabCommand("Hi")]
         public static Task Hi(Match m, CommandContext context)
-            => context.Channel.SendMessageAsync($"Hello!");
+            => context.Channel.SendMessageAsync("Hello!");
 
         [MentionOnly]
         [CrabCommand("Who am I")]
@@ -43,10 +47,11 @@ namespace Crab
             return context.Channel.SendMessageAsync("Now remembering "+BasicInstance.saveTest);
         }
 
+        [DMResponse]
         [MentionOnly]
         [AdminOnly]
         [CrabCommand("config")]
         public static Task config(Match m, CommandContext context)
-            => context.Invoker.GetOrCreateDMChannelAsync().GetAwaiter().GetResult().SendMessageAsync(BasicsUtils.listConfig());
+            => context.Channel.SendMessageAsync(BasicsUtils.listConfig());
     }
 }

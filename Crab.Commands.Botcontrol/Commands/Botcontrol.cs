@@ -24,15 +24,20 @@ namespace Crab
         //[AdminCommand]
         //unload specific module
         public static Task unload(Match m, CommandContext context){
-            if(!ConfigUtils.isModule(m.Groups[1].Value)) return context.Channel.SendMessageAsync("Thats not a module!"); //That's not a module!
+            string name = m.Groups[1].Value;
+            if(!ConfigUtils.isModule(name)) return context.Channel.SendMessageAsync("Thats not a module!"); //That's not a module!
 
-            if(Program.currentModuleManager.unloadModule(m.Groups[1].Value))
+            if(Program.currentModuleManager.unloadModule(name))
             {
-                return context.Channel.SendMessageAsync($"Unloaded module `{m.Groups[1].Value}`");
+                if(ConfigUtils.only_reload(name)){
+                    return context.Channel.SendMessageAsync($"Reloaded module `{name}` (reload only)");
+                }else{
+                    return context.Channel.SendMessageAsync($"Unloaded module `{name}`");
+                }
             }
             else
             {
-                return context.Channel.SendMessageAsync($"Couldn't unload module `{m.Groups[1].Value}`");
+                return context.Channel.SendMessageAsync($"Couldn't unload module `{name}`");
             }
         }
 
@@ -42,7 +47,7 @@ namespace Crab
         //reload specific module
         public static Task reload(Match m, CommandContext context){
             string modulename = m.Groups[1].Value;
-            if(modulename == "all") return reloadAll(context); //is it all?
+            if(modulename == "all") return reloadAll(m, context); //is it all?
             if(!ConfigUtils.isModule(modulename)) return context.Channel.SendMessageAsync("Thats not a module!"); //That's not a module!
 
             if(Program.currentModuleManager.loadModule(modulename)){
@@ -54,9 +59,22 @@ namespace Crab
             }
         }
 
-        private static Task reloadAll(CommandContext context){
+        [MentionOnly]
+        [AdminOnly]
+        [CrabCommand("restart")]
+        public static Task reloadAll(Match m, CommandContext context){
+            context.Channel.SendMessageAsync("Restarting...").GetAwaiter().GetResult();
             Program.currentModuleManager.loadAllModules();
-            return context.Channel.SendMessageAsync("Reloaded all modules");
+            return Task.CompletedTask;
+        }
+
+        [MentionOnly]
+        [AdminOnly]
+        [CrabCommand("shutdown")]
+        public static Task shutdown(Match m, CommandContext context){
+            context.Channel.SendMessageAsync("Shutting down...").GetAwaiter().GetResult();
+            Program.shutdown();
+            return Task.CompletedTask;
         }
     }
 }

@@ -3,13 +3,13 @@ namespace Crab.Commands
     public class PreconditionResult
     {
         public static PreconditionResult FromFailure()
-            => new PreconditionResult(false);
+            => new PreconditionResult(false, "");
 
         public static PreconditionResult FromFailure(string message)
             => new PreconditionResult(false, message);
 
         public static PreconditionResult FromSuccess()
-            => new PreconditionResult(true);
+            => new PreconditionResult(true, "");
 
         public static PreconditionResult FromSuccess(string message)
             => new PreconditionResult(true, message);
@@ -17,9 +17,6 @@ namespace Crab.Commands
         public readonly bool Success;
 
         public readonly string Message;
-
-        public PreconditionResult(bool success)
-            => new PreconditionResult(success, "");
 
         public PreconditionResult(bool success, string message)
         {

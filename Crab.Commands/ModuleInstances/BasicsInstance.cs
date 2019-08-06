@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Xml;
+using System;
 
 namespace Crab
 {
@@ -12,16 +13,18 @@ namespace Crab
         }
         public override void shutdown(){}
 
-        public void loadData(XmlReader reader)
+        public new void loadData(XmlReader reader)
         {
+            Console.WriteLine($"checking{reader.Name}");
             while(reader.Read())
             {
+                Console.WriteLine($"checking{reader.Name}");
                 if(reader.Name == "saveTest")
                     saveTest = reader.Value;
             }
         }
 
-        public void saveData(XmlWriter writer)
+        public new void saveData(XmlWriter writer)
         {
             writer.WriteStartElement("test");
             writer.WriteStartAttribute("saveTest");

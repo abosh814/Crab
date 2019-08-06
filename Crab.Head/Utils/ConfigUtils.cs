@@ -40,7 +40,7 @@ namespace Crab
             return config.GetSection("modules").GetChildren().Where(t => (t.GetValue<string>("name") == name))?.First()?.GetValue<string>("path");
         }
 
-        public static bool needsRestart(string name)
+        public static bool only_reload(string name)
         {
             if(!isModule(name)) return false;
             IConfiguration config = getConfig();
@@ -48,7 +48,7 @@ namespace Crab
 
             foreach (IConfigurationSection sec in sections)
             {
-                if(sec.GetValue<bool>("needs_restart"))
+                if(sec.GetValue<bool>("only_reload"))
                     return true;
             }
             return false;
@@ -66,7 +66,7 @@ namespace Crab
             foreach (IConfigurationSection item in config.GetSection("modules").GetChildren())
             {
                 string name = item.GetValue<string>("name");
-                names.Add(name + " - " + (needsRestart(name) ? "Needs Restart" : "Can reload at runtime"));
+                names.Add(name + " - " + (only_reload(name) ? "Only reloadable (vital module)" : "Can be unloaded"));
             }
             return names;
         }

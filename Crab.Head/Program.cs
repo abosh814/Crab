@@ -11,10 +11,13 @@ namespace Crab
     {
         public readonly static ModuleManager currentModuleManager = new ModuleManager();
 
-        public static AsyncManualResetEvent exitEvent;
+        private static AsyncManualResetEvent exitEvent;
+
+        private static bool active;
 
         static void Main(string[] args)
         {
+            active = false;
             currentModuleManager.loadAllModules(true);
 
             exitEvent = new AsyncManualResetEvent();
@@ -23,7 +26,7 @@ namespace Crab
             currentModuleManager.unloadAllModules();
         }
 
-        public void terminateProgram()
+        public static void shutdown()
         {
             exitEvent.Set();
         }

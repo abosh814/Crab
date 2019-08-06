@@ -33,11 +33,7 @@ namespace Crab
             if(!ConfigUtils.isModule(name))
                 return false;
 
-            if(ConfigUtils.needsRestart(name) && !isInit)
-                //TODO
-                return false;
-
-            unloadModule(name); //we dont need to pass isinit to here, since we are initializing
+            unloadModule(name, true); //we dont need to pass isinit to here, since we are initializing
 
             AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
             string modulePath = ConfigUtils.getModulePath(name);
@@ -72,18 +68,19 @@ namespace Crab
 
         public void unloadAllModules()
         {
+            List<string> names = new List<string>();
             foreach (var item in _modules)
             {
-                unloadModule(item.Key);
+                names.Add(item.Key);
+            }
+            foreach (var item in names)
+            {
+                unloadModule(item);
             }
         }
 
-        public bool unloadModule(string name){
+        public bool unloadModule(string name, bool isreloading = false){
             if(!ConfigUtils.isModule(name))
-                return false;
-
-            if(ConfigUtils.needsRestart(name))
-                //modules that need restarts are vital and cannot be unloaded, only reloaded
                 return false;
 
             if(_modules.ContainsKey(name)){
@@ -100,6 +97,11 @@ namespace Crab
                     instance.exit(ModuleInstanceResult.SHUTDOWN);
                 }
                 _modules.Remove(name);
+
+                //modules that need restarts are vital and cannot be unloaded, only reloaded
+                if(ConfigUtils.only_reload(name) && !isreloading){
+                    loadModule(name);
+                }
                 return true; 
             }
             return false;

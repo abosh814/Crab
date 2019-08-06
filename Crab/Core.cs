@@ -14,12 +14,14 @@ namespace Crab
     [LogModule]
     public class MainCore : ModuleInstance
     {
+        public static MainCore activeCore;
         private DiscordSocketClient _client;
 
         public IServiceProvider _services;
 
         public async override Task startAsync()
         {
+            activeCore = this;
             _client = new DiscordSocketClient();
             IConfiguration _config = ConfigUtils.getConfig();
             _services = ConfigureServices();
@@ -48,7 +50,9 @@ namespace Crab
 
         public override void shutdown()
         {
-            _client.LogoutAsync();
+            _services.GetRequiredService<CommandHandler>().unloading();
+
+            _client.LogoutAsync().GetAwaiter().GetResult();
         }
     }
 }

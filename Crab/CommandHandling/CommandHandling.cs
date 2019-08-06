@@ -13,7 +13,7 @@ namespace Crab.Commands
 {
     public class CommandHandler
     {
-        private Dictionary<Assembly, List<CommandModule>> _loadedModules = new Dictionary<Assembly, List<CommandModule>>();
+        public Dictionary<Assembly, List<CommandModule>> _loadedModules = new Dictionary<Assembly, List<CommandModule>>();
         private readonly DiscordSocketClient _discord;
         private readonly IServiceProvider _services;
 
@@ -26,6 +26,14 @@ namespace Crab.Commands
 
             ModuleEvents.onLoad += loadModuleAsync;
             ModuleEvents.onUnload += unloadModuleAsync;
+        }
+
+        public void unloading()
+        {
+            _discord.MessageReceived -= MessageReceivedAsync;
+
+            ModuleEvents.onLoad -= loadModuleAsync;
+            ModuleEvents.onUnload -= unloadModuleAsync;
         }
 
         public async Task loadAllModulesAsync()
@@ -136,7 +144,7 @@ namespace Crab.Commands
         }
 
         public readonly string Name;
-        private readonly List<Command> _commands;
+        public readonly List<Command> _commands;
     }
 
     public class Command
@@ -153,6 +161,9 @@ namespace Crab.Commands
                         break;
                     case CrabPreconditionAttribute precondition:
                         preconditions.Add(precondition);
+                        break;
+                    case ContextManipulatorAttribute ccmanipulator:
+                        manipulators.Add(ccmanipulator);
                         break;
                     default:
                         break;
@@ -171,12 +182,20 @@ namespace Crab.Commands
                     foreach (CrabPreconditionAttribute precon in preconditions)
                     {
                         PreconditionResult precon_res = precon.check(context);
-                        if(precon_res.Message != "")
+                        if(precon_res.Message != ""){
                             context.Channel.SendMessageAsync(precon_res.Message);
-                        if(!precon_res.Success)
+                        }
+                        if(!precon_res.Success){
                             return false;
+                        }
                     }
-                    
+
+                    //manipulate
+                    foreach (ContextManipulatorAttribute ccm in manipulators)
+                    {
+                        ccm.modify(ref context);
+                    }
+
                     //try execute func with match & context TODO
                     method.Invoke(null, new object[] {match, context});
                     //also make it async TODO
@@ -188,9 +207,11 @@ namespace Crab.Commands
 
         //aliases to run regex over
         public readonly List<string> _aliases = new List<string>();
-        //requirementattributes TODO
+        //Preconditions
         private List<CrabPreconditionAttribute> preconditions = new List<CrabPreconditionAttribute>();
-        //function ref TODO
+        //function
         private MethodInfo method;
+        //context manipulators
+        private List<ContextManipulatorAttribute> manipulators = new List<ContextManipulatorAttribute>();
     }
 }

@@ -9,7 +9,7 @@ It started as a challenge to myself but now it looks like it might actually be s
 what it gots
 #### Modular Loading
 You can reload basically everything but the module loader.
-Since the config can be changed at runtime, you could even add new modules (for the dense lads: this means new commands) at runtime without restarting the bot.
+Since the config can be changed at runtime, you could even add entire new modules at runtime without restarting the bot.
 #### Config can be changed at runtime
 Yeah i mean pretty self-explanatory
 Config holds everything from API auth code, admin discord keys to modules and repositories
@@ -25,10 +25,10 @@ yeah i gottem
 ## PLANNED
 its brewing...
 #### Porting over functionalities from MoMMIv2
-Basically anything from Reminders to DM code testing. EVERYTHING
+- Basically anything from Reminders to DM code testing. EVERYTHING
+- help command
 #### Expanding Core
 - Making every module an instance so it can handle its own data and can be (de)serialized when loading/unloading
-- only_reload attribute for modules
 - nuke that ugly logging thing from discord.net and use sawmill or whatever its called
 - log more stuff, requires ^
 - buy beer
