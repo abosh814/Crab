@@ -2,6 +2,37 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Crab.Head/Crab.Head.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/Crab.Head/Crab.Head.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "${workspaceFolder}/Crab.Head/Crab.Head.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
             "label": "Head",
             "command": "dotnet",
             "type": "process",
@@ -14,7 +45,8 @@
                 "kind": "build",
                 "isDefault": true
             }
-        },{
+        },
+        {
             "label": "Core",
             "command": "dotnet",
             "type": "process",
@@ -103,7 +135,8 @@
             "type": "process",
             "options": {
                 "cwd": "${workspaceFolder}/Crab.Head"
-            },"args": [
+            },
+            "args": [
                 "run"
             ],
             "problemMatcher": "$tsc",
