@@ -1,29 +1,31 @@
 using System.Threading.Tasks;
-using Discord.Commands;
+using Crab.Commands;
+using System.Text.RegularExpressions;
 
 namespace Crab
 {
     [LogModule]
-    public class IssueModule : ModuleBase<SocketCommandContext>
+    public class IssueModule : CrabCommandModule
     {
-        [Command("issue")]
-        [RegexAlias("\\[(\\d+)\\]")]
-        public Task getIssue(string issueid){
-            return getIssue("", issueid);
-        }
+        [CrabCommand("\\[(\\d+)\\]")]
+        public static Task getIssueWithoutPrefix(Match m, CommandContext context)
+            => getIssue("", m.Groups[1].Value, context);
 
-        [Command("issue")]
-        [RegexAlias("\\[(\\w+)#(\\d+)\\]")]
-        public Task getIssue(string prefix, string issueid){
+        [CrabCommand("\\[(\\w+)#(\\d+)\\]")]
+        public static Task getIssueWithPrefix(Match m, CommandContext context)
+            => getIssue(m.Groups[1].Value, m.Groups[2].Value, context);
+
+
+        public static Task getIssue(string prefix, string issueid, CommandContext context){
             string repo = GitUtils.get_repo(prefix);
             if(repo == null)
-                return ReplyAsync("Invalid prefix");
+                return context.Channel.SendMessageAsync("Invalid prefix");
 
             dynamic obj = GitUtils.get_json(GitUtils.github_url($"/repos/{repo}/issues/{issueid}"));
             if(obj == null)
-                return ReplyAsync("Issue not found");
+                return context.Channel.SendMessageAsync("Issue not found");
 
-            return ReplyAsync(embed: GitUtils.embed_issue(obj, repo));
+            return context.Channel.SendMessageAsync(embed: GitUtils.embed_issue(obj, repo));
         }
     }
 }

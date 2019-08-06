@@ -28,8 +28,7 @@ its brewing...
 Basically anything from Reminders to DM code testing. EVERYTHING
 #### Expanding Core
 - Making every module an instance so it can handle its own data and can be (de)serialized when loading/unloading
-- Writing my own Command Service so i dont have to use the gunky regex solution i got rn, requires ^
-- needs_restart attribute for modules
+- only_reload attribute for modules
 - nuke that ugly logging thing from discord.net and use sawmill or whatever its called
 - log more stuff, requires ^
 - buy beer

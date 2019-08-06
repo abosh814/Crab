@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Discord.Commands;
 using System.Text.RegularExpressions;
 using Crab.Commands;
 
@@ -8,19 +7,23 @@ namespace Crab
     [LogModule]
     public class ModuleControl : CrabCommandModule
     {
-
+        
+        [MentionOnly]
+        [AdminOnly]
         [CrabCommand("modules")]
         //[AdminCommand]
-        public static Task listModules(Match m, SocketCommandContext context){
+        public static Task listModules(Match m, CommandContext context){
             string res = "Available Modules:\n";
             res += string.Join("\n",ConfigUtils.getModuleList());
             return context.Channel.SendMessageAsync(res);
         }
 
-        [CrabCommand("unload (\\w+)")]
+        [MentionOnly]
+        [AdminOnly]
+        [CrabCommand("unload (.+)")]
         //[AdminCommand]
         //unload specific module
-        public static Task unload(Match m, SocketCommandContext context){
+        public static Task unload(Match m, CommandContext context){
             if(!ConfigUtils.isModule(m.Groups[1].Value)) return context.Channel.SendMessageAsync("Thats not a module!"); //That's not a module!
 
             if(Program.currentModuleManager.unloadModule(m.Groups[1].Value))
@@ -33,10 +36,11 @@ namespace Crab
             }
         }
 
-        [CrabCommand("reload (\\w+)")]
-        //[AdminCommand]
+        [MentionOnly]
+        [AdminOnly]
+        [CrabCommand("reload (.+)")]
         //reload specific module
-        public static Task reload(Match m, SocketCommandContext context){
+        public static Task reload(Match m, CommandContext context){
             string modulename = m.Groups[1].Value;
             if(modulename == "all") return reloadAll(context); //is it all?
             if(!ConfigUtils.isModule(modulename)) return context.Channel.SendMessageAsync("Thats not a module!"); //That's not a module!
@@ -50,7 +54,7 @@ namespace Crab
             }
         }
 
-        private static Task reloadAll(SocketCommandContext context){
+        private static Task reloadAll(CommandContext context){
             Program.currentModuleManager.loadAllModules();
             return context.Channel.SendMessageAsync("Reloaded all modules");
         }

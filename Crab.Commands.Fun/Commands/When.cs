@@ -1,14 +1,14 @@
-using Discord.Commands;
 using System.Threading.Tasks;
+using Crab.Commands;
+using System.Text.RegularExpressions;
 
 namespace Crab
 {
     [LogModule]
-    public class WhenModule : ModuleBase<SocketCommandContext>
+    public class WhenModule : CrabCommandModule
     {
-        [Command("when")]
-        [RegexAlias("\\S\\s+when[\\s*?.!)]*$")]
-        public Task when()
-            => ReplyAsync("When you code it.");
+        [CrabCommand("\\S\\s+when[\\s*?.!)]*$")]
+        public static Task when(Match m, CommandContext context)
+            => context.Channel.SendMessageAsync("When you code it.");
     }
 }
