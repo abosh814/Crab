@@ -15,10 +15,7 @@ Yeah i mean pretty self-explanatory
 Config holds everything from API auth code, admin discord keys to modules and repositories
 Is still json rn, but that can change
 #### Commands (so far)
-- alotta bs testing commands (imma make this list a bit better someday)
-- git issues like the original mommer (w/ repo prefixes)
-- botcontrol like restart, shutdown, reload [module]
-- when?
+![lazyman](https://cdn.discordapp.com/attachments/495322390155362324/608409278646190087/unknown.png)
 #### Regex Commands
 yeah i gottem
 
