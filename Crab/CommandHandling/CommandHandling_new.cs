@@ -53,9 +53,7 @@ namespace Crab.Commands
             //registering commands
             foreach (Type module in ass.GetTypes().Where(t => (t.BaseType == typeof(CrabCommandModule))))
             {
-                Console.WriteLine("reached this");
                 CommandModule c_module = new CommandModule(module);
-                Console.WriteLine("didn't reach this");
                 if(!_loadedModules.ContainsKey(ass)){
                     List<CommandModule> list = new List<CommandModule>();
                     list.Add(c_module);
