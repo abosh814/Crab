@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using System;
+﻿using System;
+using Microsoft.VisualStudio.Threading;
 
 namespace Crab
 {
@@ -11,22 +11,21 @@ namespace Crab
     {
         public readonly static ModuleManager currentModuleManager = new ModuleManager();
 
+        public static AsyncManualResetEvent exitEvent;
+
         static void Main(string[] args)
         {
-            MethodInfo coreMethod = currentModuleManager.loadAllModules(true);
+            currentModuleManager.loadAllModules(true);
 
-            if(coreMethod == null){
-                Console.WriteLine("PANIC EXIT, NO COREMETHOD FOUND");
-                return;
-            }
+            exitEvent = new AsyncManualResetEvent();
+            exitEvent.WaitAsync().GetAwaiter().GetResult();
 
-            int response;
-            do
-            {
-                response = (int)coreMethod.Invoke(null, null);
-                Console.WriteLine($"Core exited with code {response}");
-            } while (response == 1);
-            //new Core().MainAsync().GetAwaiter().GetResult();
+            currentModuleManager.unloadAllModules();
+        }
+
+        public void terminateProgram()
+        {
+            exitEvent.Set();
         }
     }
 }

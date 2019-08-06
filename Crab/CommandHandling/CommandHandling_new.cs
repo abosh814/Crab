@@ -37,7 +37,7 @@ namespace Crab.Commands
             //populate it again
             foreach (var item in Program.currentModuleManager._modules)
             {
-                foreach (Assembly ass in item.Value.Assemblies)
+                foreach (Assembly ass in item.Value.context.Assemblies)
                 {
                     await loadModuleAsync(ass);
                 }
@@ -47,14 +47,15 @@ namespace Crab.Commands
         public async void loadModuleAsync(object sender, ModuleEventArgs args)
             => await loadModuleAsync(args.assembly);
 
-        public async Task loadModuleAsync(Assembly ass)
+        public Task loadModuleAsync(Assembly ass)
         {
             //get all Commands in an assembly TODO
             //registering commands
             foreach (Type module in ass.GetTypes().Where(t => (t.BaseType == typeof(CrabCommandModule))))
             {
+                Console.WriteLine("reached this");
                 CommandModule c_module = new CommandModule(module);
-                Console.WriteLine("I reached line");
+                Console.WriteLine("didn't reach this");
                 if(!_loadedModules.ContainsKey(ass)){
                     List<CommandModule> list = new List<CommandModule>();
                     list.Add(c_module);
@@ -65,31 +66,33 @@ namespace Crab.Commands
                 Console.WriteLine($"loaded command module: {c_module.Name}");
             }
             Console.WriteLine($"Finished loading all command modules");
+            return Task.CompletedTask;
         }
 
         public async void unloadModuleAsync(object sender, ModuleEventArgs args)
             => await unloadModuleAsync(args.assembly);
 
-        public async Task unloadModuleAsync(Assembly ass)
+        public Task unloadModuleAsync(Assembly ass)
         {
             if(!_loadedModules.ContainsKey(ass))
-                return;
+                return Task.CompletedTask;
             foreach (CommandModule mod in _loadedModules[ass])
             {
                 Console.WriteLine($"unloaded command module: {mod.Name}");
             }
             _loadedModules.Remove(ass);
+            return Task.CompletedTask;
         }
 
-        public async Task MessageReceivedAsync(SocketMessage rawMessage)
+        public Task MessageReceivedAsync(SocketMessage rawMessage)
         {
             // Ignore system messages, or messages from other bots
-            if (!(rawMessage is SocketUserMessage message)) return;
-            if (message.Source != MessageSource.User) return;
+            if (!(rawMessage is SocketUserMessage message)) return Task.CompletedTask;
+            if (message.Source != MessageSource.User) return Task.CompletedTask;
 
             var argPos = 0;
             // (!message.HasCharPrefix('!', ref argPos)) -- make this a requirement?
-            if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos)) return; //make this a requirement?
+            if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos)) return Task.CompletedTask; //make this a requirement?
 
             var context = new SocketCommandContext(_discord, message);
             // Perform the execution of the command. In this method,
@@ -102,23 +105,24 @@ namespace Crab.Commands
                 foreach (CommandModule module in assembly.Value)
                 {
                     Console.WriteLine($"trying module {module.Name}");
-                    if(await module.tryExecute(context))
-                        return;
+                    if(module.tryExecute(context))
+                        return Task.CompletedTask;
                 }
             }
+            return Task.CompletedTask;
         }
     }
 
     public class CommandModule
     {
         //have modules be able to have requirements TODO
-        public async Task<bool> tryExecute(SocketCommandContext context)
+        public bool tryExecute(SocketCommandContext context)
         {
             foreach (Command command in _commands)
             {
                 Console.WriteLine($"trying command {command._aliases.First()}");
 
-                if(await command.tryExecute(context))
+                if(command.tryExecute(context))
                     return true;
             }
             return false;
@@ -167,8 +171,8 @@ namespace Crab.Commands
             }
         }
         public static bool isCommand(MethodInfo method)
-             => method.GetCustomAttribute(typeof(CrabCommandAttribute)) != null;
-        public async Task<bool> tryExecute(SocketCommandContext context)
+             => method?.GetCustomAttribute(typeof(CrabCommandAttribute)) != null;
+        public bool tryExecute(SocketCommandContext context)
         {
             //try requirements
             Console.WriteLine("Hi i reached this code");

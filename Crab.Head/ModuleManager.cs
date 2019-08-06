@@ -11,55 +11,54 @@ namespace Crab
 {
     public class ModuleManager
     {
-        public Dictionary<string, AssemblyLoadContext> _modules = new Dictionary<string, AssemblyLoadContext>();
+        public Dictionary<string, LoadedModule> _modules = new Dictionary<string, LoadedModule>();
 
-        public MethodInfo loadAllModules()
+        public void loadAllModules()
             => loadAllModules(false);
 
-        public MethodInfo loadAllModules(bool isInit)
+        public void loadAllModules(bool isInit)
         {
             Console.WriteLine("Loading modules!");
-            MethodInfo coreMethod = null;
             foreach (string name in ConfigUtils.getAllModuleNames(isInit))
             {
-                ModuleLoadResult mlr = loadModule(name, isInit);
-                if(mlr.coreLoadedMethod != null && isInit)
-                    coreMethod = mlr.coreLoadedMethod;
+                loadModule(name, isInit);
             }
-            return coreMethod;
         }
 
-        public ModuleLoadResult loadModule(string name)
+        public bool loadModule(string name)
             => loadModule(name, false);
 
-        private ModuleLoadResult loadModule(string name, bool isInit)
+        private bool loadModule(string name, bool isInit)
         {
             if(!ConfigUtils.isModule(name))
-                return ModuleLoadResult.Fail;
+                return false;
 
             if(ConfigUtils.needsRestart(name) && !isInit)
                 //TODO
-                return ModuleLoadResult.Fail;
+                return false;
 
             unloadModule(name); //we dont need to pass isinit to here, since we are initializing
 
             AssemblyLoadContext _moduleLoadContext = new AssemblyLoadContext(name, true);
             string modulePath = ConfigUtils.getModulePath(name);
             Assembly assembly;
-            MethodInfo coreLoadedMethod = null;
+            List<ModuleInstance> instances = new List<ModuleInstance>();
             using (var file = File.OpenRead(modulePath))
             {
                 assembly = _moduleLoadContext.LoadFromStream(file);
-                foreach (var moduleType in assembly.GetTypes())
+                foreach (Type moduleType in assembly.GetTypes())
                 {
                     //_sawmill.Debug("Found module {0}", moduleType);
                     if(moduleType.GetCustomAttribute(typeof(LogModule)) != null)
                         Console.WriteLine($"Loaded module {moduleType}");
-                    if(moduleType.BaseType == typeof(CrabCore))
-                        coreLoadedMethod = moduleType.GetMethod("loaded"); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
+                    if(moduleType.BaseType == typeof(ModuleInstance)){
+                        ModuleInstance t_module = (ModuleInstance)Activator.CreateInstance(moduleType); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
+                        t_module.mainAsync().GetAwaiter();
+                        instances.Add(t_module);
+                    }
                 }
             }
-            _modules.Add(name, _moduleLoadContext);
+            _modules.Add(name, new LoadedModule(_moduleLoadContext, instances));
 
             foreach (Assembly ass in _moduleLoadContext.Assemblies)
             {
@@ -68,7 +67,15 @@ namespace Crab
                 args.assembly = ass;
                 ModuleEvents.moduleLoaded(this, args);
             }
-            return new ModuleLoadResult(true, coreLoadedMethod);;
+            return true;
+        }
+
+        public void unloadAllModules()
+        {
+            foreach (var item in _modules)
+            {
+                unloadModule(item.Key);
+            }
         }
 
         public bool unloadModule(string name){
@@ -80,14 +87,18 @@ namespace Crab
                 return false;
 
             if(_modules.ContainsKey(name)){
-                foreach (Assembly ass in _modules[name].Assemblies)
+                foreach (Assembly ass in _modules[name].context.Assemblies)
                 {
                     ModuleEventArgs args = new ModuleEventArgs();
                     args.name = name;
                     args.assembly = ass;
                     ModuleEvents.moduleUnloaded(this, args);
                 }
-                _modules[name].Unload();
+                _modules[name].context.Unload();
+                foreach (ModuleInstance instance in _modules[name].instances)
+                {
+                    instance.exit(ModuleInstanceResult.SHUTDOWN);
+                }
                 _modules.Remove(name);
                 return true; 
             }
@@ -95,16 +106,14 @@ namespace Crab
         }
     }
 
-    public struct ModuleLoadResult
-    {
-        public static ModuleLoadResult Fail = new ModuleLoadResult(false,null);
-
-        public ModuleLoadResult(bool s, MethodInfo c)
+    public struct LoadedModule{
+        public LoadedModule(AssemblyLoadContext c, List<ModuleInstance> i)
         {
-            success = s;
-            coreLoadedMethod = c;
+            context = c;
+            instances = i;
         }
-        public bool success;
-        public MethodInfo coreLoadedMethod;
+        public AssemblyLoadContext context;
+
+        public List<ModuleInstance> instances;
     }
 }

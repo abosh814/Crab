@@ -12,32 +12,22 @@ using Crab.Commands;
 namespace Crab
 {
     [LogModule]
-    public class Core : CrabCore
+    public class MainCore : ModuleInstance
     {
         private DiscordSocketClient _client;
 
         public IServiceProvider _services;
 
-        public new static int loaded()
-            => new Core().MainAsync().GetAwaiter().GetResult();
-
-        public async Task<int> MainAsync()
+        public async override Task startAsync()
         {
             _client = new DiscordSocketClient();
             IConfiguration _config = ConfigUtils.getConfig();
             _services = ConfigureServices();
             _services.GetRequiredService<LogService>();
-            _services.GetRequiredService<CommandHandler>().loadAllModulesAsync();
+            await _services.GetRequiredService<CommandHandler>().loadAllModulesAsync();
 
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
-
-            if(exitEvent != null)
-                exitEvent.Set();
-            exitEvent = new AsyncManualResetEvent();
-            await exitEvent.WaitAsync();
-            await _client.LogoutAsync();
-            return exitCode;
         }
 
         private IServiceProvider ConfigureServices()
@@ -56,13 +46,9 @@ namespace Crab
                 .BuildServiceProvider();
         }
 
-        private static int exitCode;
-        private static AsyncManualResetEvent exitEvent;
-
-        public static void exit(int code)
+        public override void shutdown()
         {
-            exitCode = code;
-            exitEvent.Set();
+            _client.LogoutAsync();
         }
     }
 }
