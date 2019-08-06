@@ -17,7 +17,8 @@ namespace Crab
                 if(File.Exists(datafilePath)){
                     using (XmlReader reader = XmlReader.Create(datafilePath))
                     {
-                        await loadData(reader);
+                        loadData(reader);
+                        reader.Close();
                     } 
                 }else{
                     File.Create(datafilePath);
@@ -35,7 +36,9 @@ namespace Crab
                 if(File.Exists(datafilePath)){
                     using (XmlWriter writer = XmlWriter.Create(datafilePath))
                     {
-                        await saveData(writer);
+                        saveData(writer);
+                        writer.Flush();
+                        writer.Close();
                     }
                 }else{
                     File.Create(datafilePath);
@@ -46,14 +49,10 @@ namespace Crab
         }
 
 
-        public async Task loadData(XmlReader reader){
-            await Task.CompletedTask;
-        }
+        public void loadData(XmlReader reader){}
 
         //https://docs.microsoft.com/de-de/dotnet/api/system.xml.xmlwriter?view=netframework-4.8
-        public async Task saveData(XmlWriter writer){
-            await Task.CompletedTask;
-        }
+        public void saveData(XmlWriter writer){}
 
         public abstract Task startAsync();
 

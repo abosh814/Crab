@@ -1,4 +1,4 @@
 namespace Crab.Commands
 {
-    public class CrabCommandModule{}
+    public abstract class CrabCommandModule{}
 }

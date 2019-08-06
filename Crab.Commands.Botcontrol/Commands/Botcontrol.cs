@@ -1,60 +1,58 @@
 using System.Threading.Tasks;
 using Discord.Commands;
+using System.Text.RegularExpressions;
+using Crab.Commands;
 
 namespace Crab
 {
     [LogModule]
-    public class ModuleControl : ModuleBase<SocketCommandContext>
+    public class ModuleControl : CrabCommandModule
     {
 
-        [Command("modules")]
-        [AdminCommand]
-        public Task listModules(){
+        [CrabCommand("modules")]
+        //[AdminCommand]
+        public static Task listModules(Match m, SocketCommandContext context){
             string res = "Available Modules:\n";
             res += string.Join("\n",ConfigUtils.getModuleList());
-            return ReplyAsync(res);
+            return context.Channel.SendMessageAsync(res);
         }
 
-        [Command("unload")]
-        [AdminCommand]
+        [CrabCommand("unload (\\w+)")]
+        //[AdminCommand]
         //unload specific module
-        public Task unload(string modulename){
-            if(!ConfigUtils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
+        public static Task unload(Match m, SocketCommandContext context){
+            if(!ConfigUtils.isModule(m.Groups[1].Value)) return context.Channel.SendMessageAsync("Thats not a module!"); //That's not a module!
 
-            if(Program.currentModuleManager.unloadModule(modulename))
+            if(Program.currentModuleManager.unloadModule(m.Groups[1].Value))
             {
-                return ReplyAsync($"Unloaded module `{modulename}`");
+                return context.Channel.SendMessageAsync($"Unloaded module `{m.Groups[1].Value}`");
             }
             else
             {
-                return ReplyAsync($"Couldn't unload module `{modulename}`");
+                return context.Channel.SendMessageAsync($"Couldn't unload module `{m.Groups[1].Value}`");
             }
         }
 
-        [LogModule]
-        [Group("reload")]
-        public class ReloadModule : ModuleBase<SocketCommandContext>
-        {
-            [Command]
-            [AdminCommand]
-            //reload specific module
-            public Task reload(string modulename){
-                if(modulename == "all") return reloadAll(); //is it all?
-                if(!ConfigUtils.isModule(modulename)) return ReplyAsync("Thats not a module!"); //That's not a module!
+        [CrabCommand("reload (\\w+)")]
+        //[AdminCommand]
+        //reload specific module
+        public static Task reload(Match m, SocketCommandContext context){
+            string modulename = m.Groups[1].Value;
+            if(modulename == "all") return reloadAll(context); //is it all?
+            if(!ConfigUtils.isModule(modulename)) return context.Channel.SendMessageAsync("Thats not a module!"); //That's not a module!
 
-                if(Program.currentModuleManager.loadModule(modulename).success){
-                    return ReplyAsync($"Reloaded module `{modulename}`");
-                }
-                else
-                {
-                    return ReplyAsync($"Couldn't reload module {modulename}");
-                }
+            if(Program.currentModuleManager.loadModule(modulename)){
+                return context.Channel.SendMessageAsync($"Reloaded module `{modulename}`");
             }
+            else
+            {
+                return context.Channel.SendMessageAsync($"Couldn't reload module {modulename}");
+            }
+        }
 
-            private Task reloadAll(){
-                Program.currentModuleManager.loadAllModules();
-                return ReplyAsync("Reloaded all modules");
-            }
+        private static Task reloadAll(SocketCommandContext context){
+            Program.currentModuleManager.loadAllModules();
+            return context.Channel.SendMessageAsync("Reloaded all modules");
         }
     }
 }

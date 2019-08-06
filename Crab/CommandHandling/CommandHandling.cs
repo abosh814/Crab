@@ -152,9 +152,10 @@ namespace Crab.Commands
 
     public class Command
     {
-        public Command(MethodInfo method)
+        public Command(MethodInfo m)
         {
-            foreach (var att in method.GetCustomAttributes())
+            method = m;
+            foreach (var att in m.GetCustomAttributes())
             {
                 switch (att)
                 {
@@ -168,12 +169,11 @@ namespace Crab.Commands
                 }
             }
         }
-        public static bool isCommand(MethodInfo method)
-             => method?.GetCustomAttribute(typeof(CrabCommandAttribute)) != null;
+        public static bool isCommand(MethodInfo m)
+             => m?.GetCustomAttribute(typeof(CrabCommandAttribute)) != null;
         public bool tryExecute(SocketCommandContext context)
         {
             //try requirements
-            Console.WriteLine("Hi i reached this code");
 
             foreach (string alias in _aliases)
             {
@@ -182,7 +182,8 @@ namespace Crab.Commands
                 if(match.Success){
                     Console.WriteLine("success!");
                     //try execute func with match & context TODO
-                    //also make it async
+                    method.Invoke(null, new object[] {match, context});
+                    //also make it async TODO
                     return true;
                 }
             }
@@ -190,8 +191,9 @@ namespace Crab.Commands
         }
 
         //aliases to run regex over
-        public readonly List<string> _aliases;
+        public readonly List<string> _aliases = new List<string>();
         //requirementattributes TODO
         //function ref TODO
+        private MethodInfo method;
     }
 }
