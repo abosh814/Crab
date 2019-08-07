@@ -54,5 +54,9 @@ namespace Crab
 
             _client.LogoutAsync().GetAwaiter().GetResult();
         }
+
+        public override void saveData(ref System.Xml.XmlDocument doc, ref System.Xml.XmlNode root){}
+
+        public override void loadData(System.Xml.XmlDocument doc, System.Xml.XmlNode root){}
     }
 }

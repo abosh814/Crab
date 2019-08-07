@@ -4,6 +4,7 @@ using System;
 
 namespace Crab
 {
+    [HasDataFileAttribute("basics")]
     public class BasicInstance : ModuleInstance
     {
         public static string saveTest = "";
@@ -13,24 +14,19 @@ namespace Crab
         }
         public override void shutdown(){}
 
-        public new void loadData(XmlReader reader)
+        public override void loadData(XmlDocument doc, XmlNode root)
         {
-            Console.WriteLine($"checking{reader.Name}");
-            while(reader.Read())
-            {
-                Console.WriteLine($"checking{reader.Name}");
-                if(reader.Name == "saveTest")
-                    saveTest = reader.Value;
-            }
+            saveTest = doc.SelectSingleNode("/root/test")?.Attributes.GetNamedItem("value")?.Value;
         }
 
-        public new void saveData(XmlWriter writer)
+        public override void saveData(ref XmlDocument doc, ref XmlNode root)
         {
-            writer.WriteStartElement("test");
-            writer.WriteStartAttribute("saveTest");
-            writer.WriteValue(saveTest);
-            writer.WriteEndAttribute();
-            writer.WriteEndElement();
+            Console.WriteLine("savedata called");
+            XmlNode node = doc.CreateElement("test");
+            XmlAttribute att = doc.CreateAttribute("value");
+            att.Value = saveTest;
+            node.Attributes.Append(att);
+            root.AppendChild(node);
         }
     }
 }

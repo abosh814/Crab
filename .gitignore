@@ -10,4 +10,5 @@
 /Crab.Commands.Botcontrol/obj/*
 /Crab.Commands.Github/obj/*
 /Crab.Commands.Fun/obj/*
+/Crab.Head/data/*
 /Crab.Head/config.json
