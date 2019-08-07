@@ -19,7 +19,6 @@ namespace Crab
 
         public void loadAllModules(bool isInit)
         {
-            Console.WriteLine("Loading modules!");
             foreach (string name in ConfigUtils.getAllModuleNames(isInit))
             {
                 loadModule(name, isInit);
@@ -57,7 +56,6 @@ namespace Crab
                         {
                             string path = $"{datadir}/{hdfa.datafile}.xml";
 
-                            Console.WriteLine($"got datafile from {path}");
                             if(!Directory.Exists(datadir))
                                 Directory.CreateDirectory(datadir);
                             
@@ -103,21 +101,25 @@ namespace Crab
             if(_modules.ContainsKey(name)){
                 foreach (Assembly ass in _modules[name].context.Assemblies)
                 {
+                    foreach (Type t in ass.GetTypes()){
+                        if(t.GetCustomAttribute(typeof(LogModule)) != null)
+                            Console.WriteLine($"Unloaded module {t}");
+                    }
                     ModuleEventArgs args = new ModuleEventArgs();
                     args.name = name;
                     args.assembly = ass;
                     ModuleEvents.moduleUnloaded(this, args);
                 }
+
                 _modules[name].context.Unload();
+                
                 foreach (ModuleInstance instance in _modules[name].instances)
                 {
-                    Console.WriteLine($"shutting down instance {name}");
                     HasDataFileAttribute hdfa = instance.GetType().GetCustomAttribute<HasDataFileAttribute>();
                     if(hdfa != null)
                     {
                         string path = $"{datadir}/{hdfa.datafile}.xml";
 
-                        Console.WriteLine($"saving to {path}");
                         if(!Directory.Exists(datadir))
                             Directory.CreateDirectory(datadir);
 
@@ -131,7 +133,6 @@ namespace Crab
                     }
                     instance.exit(ModuleInstanceResult.SHUTDOWN);
                     instance.asyncFinished.WaitAsync().GetAwaiter().GetResult();
-                    Console.WriteLine("shutdown finished");
                 }
                 _modules.Remove(name);
 

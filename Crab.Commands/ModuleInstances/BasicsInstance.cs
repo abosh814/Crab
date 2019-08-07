@@ -21,7 +21,6 @@ namespace Crab
 
         public override void saveData(ref XmlDocument doc, ref XmlNode root)
         {
-            Console.WriteLine("savedata called");
             XmlNode node = doc.CreateElement("test");
             XmlAttribute att = doc.CreateAttribute("value");
             att.Value = saveTest;

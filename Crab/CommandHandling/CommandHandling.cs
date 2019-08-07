@@ -49,7 +49,6 @@ namespace Crab.Commands
                     await loadModuleAsync(ass);
                 }
             }
-            Console.WriteLine($"Finished loading all command modules");
         }
 
         public async void loadModuleAsync(object sender, ModuleEventArgs args)

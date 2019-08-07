@@ -14,8 +14,6 @@ namespace Crab
 
             await exitEvent.WaitAsync();
 
-            Console.WriteLine("exit received");
-
             shutdown();
 
             asyncFinished.Set();
