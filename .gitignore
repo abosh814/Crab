@@ -1,12 +1,12 @@
 /Crab/bin/*
 /Crab.Head/bin/*
-/Crab.Commands/bin/*
+/Crab.Commands.Basics/bin/*
 /Crab.Commands.Botcontrol/bin/*
 /Crab.Commands.Github/bin/*
 /Crab.Commands.Fun/bin/*
 /Crab/obj/*
 /Crab.Head/obj/*
-/Crab.Commands/obj/*
+/Crab.Commands.Basics/obj/*
 /Crab.Commands.Botcontrol/obj/*
 /Crab.Commands.Github/obj/*
 /Crab.Commands.Fun/obj/*

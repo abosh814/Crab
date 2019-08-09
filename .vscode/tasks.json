@@ -38,8 +38,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Crab.Head/Crab.Head.csproj",
-                "--no-dependencies"
+                "${workspaceFolder}/Crab.Head/Crab.Head.csproj"
             ],
             "problemMatcher": "$tsc",
             "group": {
@@ -53,8 +52,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Crab/Crab.csproj",
-                "--no-dependencies"
+                "${workspaceFolder}/Crab/Crab.csproj"
             ],
             "problemMatcher": "$tsc",
             "group": {
@@ -63,13 +61,12 @@
             }
         },
         {
-            "label": "Commands",
+            "label": "Commands.Basics",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Crab.Commands/Crab.Commands.csproj",
-                "--no-dependencies"
+                "${workspaceFolder}/Crab.Commands.Basics/Crab.Commands.Basics.csproj"
             ],
             "problemMatcher": "$tsc",
             "group": {
@@ -83,8 +80,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Crab.Commands.Botcontrol/Crab.Commands.Botcontrol.csproj",
-                "--no-dependencies"
+                "${workspaceFolder}/Crab.Commands.Botcontrol/Crab.Commands.Botcontrol.csproj"
             ],
             "problemMatcher": "$tsc",
             "group": {
@@ -98,8 +94,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Crab.Commands.Github/Crab.Commands.Github.csproj",
-                "--no-dependencies"
+                "${workspaceFolder}/Crab.Commands.Github/Crab.Commands.Github.csproj"
             ],
             "problemMatcher": "$tsc",
             "group": {
@@ -113,8 +108,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Crab.Commands.Fun/Crab.Commands.Fun.csproj",
-                "--no-dependencies"
+                "${workspaceFolder}/Crab.Commands.Fun/Crab.Commands.Fun.csproj"
             ],
             "problemMatcher": "$tsc",
             "group": {

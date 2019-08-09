@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 using System;
 using System.Text.RegularExpressions;
-using Crab.Commands;
 
-namespace Crab
+namespace Crab.Commands.Basics
 {
     [LogModule]
     public class Basics : CrabCommandModule
