@@ -40,10 +40,10 @@ namespace Crab.Commands.Basics
         [AdminOnly]
         [CrabCommand("memorytest (.*)")]
         public static Task memorytest(Match m, CommandContext context){
-            if(BasicInstance.saveTest != "")
-                context.Channel.SendMessageAsync("Was remembering "+BasicInstance.saveTest);
-            BasicInstance.saveTest = m.Groups[1].Value;
-            return context.Channel.SendMessageAsync("Now remembering "+BasicInstance.saveTest);
+            if(BasicInstance.memorytest != "")
+                context.Channel.SendMessageAsync("Was remembering "+BasicInstance.memorytest);
+            BasicInstance.memorytest = m.Groups[1].Value;
+            return context.Channel.SendMessageAsync("Now remembering "+BasicInstance.memorytest);
         }
 
         [DMResponse]

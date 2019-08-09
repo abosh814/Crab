@@ -2,10 +2,10 @@ using System;
 using System.Runtime.Loader;
 using System.IO;
 using System.Reflection;
-using System.Xml.Serialization;
-using System.Xml;
 using System.Collections.Generic;
 using Crab.Events;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Crab
 {
@@ -48,23 +48,21 @@ namespace Crab
                     if(moduleType.GetCustomAttribute(typeof(LogModule)) != null)
                         Console.WriteLine($"Loaded module {moduleType}");
                     if(moduleType.BaseType == typeof(ModuleInstance)){
-                        ModuleInstance t_module;
-                        t_module = (ModuleInstance)Activator.CreateInstance(moduleType); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
+                        ModuleInstance t_module = (ModuleInstance)Activator.CreateInstance(moduleType);
                         
                         HasDataFileAttribute hdfa = moduleType.GetCustomAttribute<HasDataFileAttribute>();
-                        if(hdfa != null && File.Exists($"{datadir}/{hdfa.datafile}.xml"))
+                        if(hdfa != null && File.Exists($"{datadir}/{hdfa.datafile}.json"))
                         {
-                            string path = $"{datadir}/{hdfa.datafile}.xml";
+                            string path = $"{datadir}/{hdfa.datafile}.json";
 
                             if(!Directory.Exists(datadir))
                                 Directory.CreateDirectory(datadir);
                             
-                            XmlDocument doc = new XmlDocument();
-                            doc.Load(path);
-                            XmlNode root = doc.DocumentElement.SelectSingleNode("/root");
-                            t_module.loadData(doc, root);
+                            string text = File.ReadAllText(path);
+                            t_module.load_jobject(JsonConvert.DeserializeObject<JObject>(text));
                         }
-                        t_module.mainAsync().GetAwaiter();
+
+                        t_module.mainAsync().GetAwaiter(); //this should never fail cause moduleType NEEDS to have been inherited from CrabModule
                         instances.Add(t_module);
                     }
                 }
@@ -118,18 +116,12 @@ namespace Crab
                     HasDataFileAttribute hdfa = instance.GetType().GetCustomAttribute<HasDataFileAttribute>();
                     if(hdfa != null)
                     {
-                        string path = $"{datadir}/{hdfa.datafile}.xml";
+                        string path = $"{datadir}/{hdfa.datafile}.json";
 
                         if(!Directory.Exists(datadir))
                             Directory.CreateDirectory(datadir);
 
-                        XmlDocument doc = new XmlDocument();
-                        XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
-                        doc.AppendChild(docNode);
-                        XmlNode rootNode = doc.CreateElement("root");
-                        doc.AppendChild(rootNode);
-                        instance.saveData(ref doc, ref rootNode);
-                        doc.Save(path);
+                        File.WriteAllText(path, instance.get_jobject().ToString());
                     }
                     instance.exit(ModuleInstanceResult.SHUTDOWN);
                     instance.asyncFinished.WaitAsync().GetAwaiter().GetResult();

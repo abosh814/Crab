@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using Crab.Services;
 using Microsoft.VisualStudio.Threading;
 using Crab.Commands;
+using Newtonsoft.Json.Linq;
 
 namespace Crab
 {
@@ -55,8 +56,8 @@ namespace Crab
             _client.LogoutAsync().GetAwaiter().GetResult();
         }
 
-        public override void saveData(ref System.Xml.XmlDocument doc, ref System.Xml.XmlNode root){}
+        public override JObject get_jobject(){ return null; }
 
-        public override void loadData(System.Xml.XmlDocument doc, System.Xml.XmlNode root){}
+        public override void load_jobject(JObject obj){}
     }
 }

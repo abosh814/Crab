@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
-using System.Xml;
+using Newtonsoft.Json.Linq;
 using System.IO;
 using System;
 using System.Xml.Serialization;
@@ -24,11 +24,9 @@ namespace Crab
 
         public abstract void shutdown(); //this should not be async because of obvious reasons
 
-        //https://stackoverflow.com/questions/4094940/c-sharp-create-simple-xml-file
-        public abstract void saveData(ref XmlDocument doc, ref XmlNode root);
+        public abstract JObject get_jobject();
 
-        //https://stackoverflow.com/questions/642293/how-do-i-read-and-parse-an-xml-file-in-c
-        public abstract void loadData(XmlDocument doc, XmlNode root);
+        public abstract void load_jobject(JObject obj);
 
         private ModuleInstanceResult exitCode = ModuleInstanceResult.NONE; 
 
