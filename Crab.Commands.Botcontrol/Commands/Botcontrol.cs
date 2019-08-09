@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Crab.Commands;
 
-namespace Crab
+namespace Crab.Commands.Botcontrol
 {
     [LogModule]
     public class ModuleControl : CrabCommandModule
