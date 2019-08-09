@@ -138,6 +138,8 @@ namespace Crab.Commands
                     Console.WriteLine($"Exception occured while trying to execute command for message {message}");
                     Console.WriteLine(latest.exception);
                 }
+                if(latest.shouldExit())
+                    break;
             }
             return Task.CompletedTask;
         }
