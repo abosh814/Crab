@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
-using Crab.Commands;
 using System.Text.RegularExpressions;
 
-namespace Crab
+namespace Crab.Commands.Github
 {
     [LogModule]
     public class IssueModule : CrabCommandModule
