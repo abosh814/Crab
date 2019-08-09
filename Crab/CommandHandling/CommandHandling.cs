@@ -100,10 +100,43 @@ namespace Crab.Commands
             // then execute the command if one is matched.
             foreach (var assembly in _loadedModules)
             {
-                foreach (CommandModule module in assembly.Value)
+                CommandResult latest = CommandResult.FromNeutral();
+                try{
+                    foreach (CommandModule module in assembly.Value)
+                    {
+                        CommandResult newresult = module.tryExecute(context);
+                        if(latest.isSmallerThan(newresult))
+                            latest = newresult;
+                        if(latest.shouldExit())
+                            break;
+                    }
+                }catch(Exception e)
                 {
-                    if(module.tryExecute(context))
-                        return Task.CompletedTask;
+                    latest = CommandResult.FromException(e);
+                }
+
+                //handling the commandresult
+                if(latest.emote != null){
+                    message.AddReactionAsync(latest.emote);
+                }
+
+                if(latest.message != null){
+                    context.Channel.SendMessageAsync(latest.message);
+                }
+                
+                if(latest.result == ExecutionResult.EXCEPTION)
+                {
+                    //pinging admins
+                    string mentions = "";
+                    foreach (var key in Utils.get_all_admin_keys())
+                    {
+                        mentions += $"<@!{key}>";
+                    }
+                    context.Channel.SendMessageAsync($"{mentions} Exception occured in command execution, check logs.");
+
+                    //logs
+                    Console.WriteLine($"Exception occured while trying to execute command for message {message}");
+                    Console.WriteLine(latest.exception);
                 }
             }
             return Task.CompletedTask;
@@ -113,14 +146,23 @@ namespace Crab.Commands
     public class CommandModule
     {
         //have modules be able to have requirements TODO
-        public bool tryExecute(CommandContext context)
+        public CommandResult tryExecute(CommandContext context)
         {
-            foreach (Command command in _commands)
+            CommandResult latest = CommandResult.FromNeutral();
+            try{
+                foreach (Command command in _commands)
+                {
+                    CommandResult newresult = command.tryExecute(context);
+                    if(latest.isSmallerThan(newresult))
+                        latest = newresult;
+                    if(latest.shouldExit())
+                        return latest;
+                }
+            }catch(Exception e)
             {
-                if(command.tryExecute(context))
-                    return true;
+                latest = CommandResult.FromException(e);
             }
-            return false;
+            return latest;
         }
 
         public CommandModule(string n, List<Command> commands)
@@ -171,37 +213,40 @@ namespace Crab.Commands
         }
         public static bool isCommand(MethodInfo m)
              => m?.GetCustomAttribute(typeof(CrabCommandAttribute)) != null;
-        public bool tryExecute(CommandContext context)
+        public CommandResult tryExecute(CommandContext context)
         {
-            foreach (string alias in _aliases)
-            {
-                Match match = Regex.Match(context.Message.Content, alias);
-                if(match.Success){
-                    //try requirements
-                    foreach (CrabPreconditionAttribute precon in preconditions)
-                    {
-                        PreconditionResult precon_res = precon.check(context);
-                        if(precon_res.Message != ""){
-                            context.Channel.SendMessageAsync(precon_res.Message);
+            try{
+                foreach (string alias in _aliases)
+                {
+                    Match match = Regex.Match(context.Message.Content, alias);
+                    if(match.Success){
+                        //try requirements
+                        foreach (CrabPreconditionAttribute precon in preconditions)
+                        {
+                            PreconditionResult precon_res = precon.check(context);
+                            if(!precon_res.Success){
+                                return CommandResult.FromFailure(precon_res);
+                            }
                         }
-                        if(!precon_res.Success){
-                            return false;
+
+                        //manipulate
+                        foreach (ContextManipulatorAttribute ccm in manipulators)
+                        {
+                            ccm.modify(ref context);
                         }
-                    }
 
-                    //manipulate
-                    foreach (ContextManipulatorAttribute ccm in manipulators)
-                    {
-                        ccm.modify(ref context);
+                        //try execute func with match & context TODO
+                        method.Invoke(null, new object[] {match, context});
+                        //also make it async TODO
+                        return CommandResult.FromSuccess();
                     }
-
-                    //try execute func with match & context TODO
-                    method.Invoke(null, new object[] {match, context});
-                    //also make it async TODO
-                    return true;
                 }
             }
-            return false;
+            catch(Exception e)
+            {
+                return CommandResult.FromException(e);
+            }
+            return CommandResult.FromNeutral();
         }
 
         //aliases to run regex over

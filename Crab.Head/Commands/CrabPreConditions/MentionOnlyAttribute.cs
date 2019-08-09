@@ -8,8 +8,8 @@ namespace Crab.Commands
         {
             int argpos = 0; //it will complain else
             if(context.Message.HasMentionPrefix(context.Crab.CurrentUser, ref argpos))
-                return PreconditionResult.FromSuccess();
-            return PreconditionResult.FromFailure();
+                return PreconditionResult.FromSuccess().NoResponse();
+            return PreconditionResult.FromFailure().NoResponse();
         }
     }
 }
