@@ -7,26 +7,25 @@
 	"modules": [
 		{
 			"name": "Core",
-			"path": "../Crab/bin/Debug/netcoreapp3.0/Crab.dll"
+			"path": "../Crab/bin/Debug/netcoreapp3.0/Crab.dll",
+			"only_reload": true
 		},
 		{
-			"name": "Commands",
-			"path": "../Crab.Commands/bin/Debug/netcoreapp3.0/Crab.Commands.dll"
+			"name": "Commands.Basics",
+			"path": "../Crab.Commands.Basics/bin/Debug/netcoreapp3.0/Crab.Commands.Basics.dll"
 		},
 		{
 			"name": "Commands.Botcontrol",
 			"path": "../Crab.Commands.Botcontrol/bin/Debug/netcoreapp3.0/Crab.Commands.Botcontrol.dll",
-			"dont_load_on_init": true
+			"only_reload": true
 		},
 		{
 			"name": "Commands.Github",
-			"path": "../Crab.Commands.Github/bin/Debug/netcoreapp3.0/Crab.Commands.Github.dll",
-			"dont_load_on_init": true
+			"path": "../Crab.Commands.Github/bin/Debug/netcoreapp3.0/Crab.Commands.Github.dll"
 		},
 		{
 			"name": "Commands.Fun",
-			"path": "../Crab.Commands.Fun/bin/Debug/netcoreapp3.0/Crab.Commands.Fun.dll",
-			"dont_load_on_init": true
+			"path": "../Crab.Commands.Fun/bin/Debug/netcoreapp3.0/Crab.Commands.Fun.dll"
 		}
 	],
 	"repos": [
