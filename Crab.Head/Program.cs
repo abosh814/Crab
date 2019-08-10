@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.Threading;
+using Discord.WebSocket;
 
 namespace Crab
 {
@@ -12,6 +13,8 @@ namespace Crab
         public readonly static ModuleManager currentModuleManager = new ModuleManager();
 
         private static AsyncManualResetEvent exitEvent;
+
+        public static DiscordSocketClient client;
 
         private static bool active;
 

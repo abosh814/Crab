@@ -16,28 +16,27 @@ namespace Crab
     public class MainCore : ModuleInstance
     {
         public static MainCore activeCore;
-        private DiscordSocketClient _client;
 
         public IServiceProvider _services;
 
         public async override Task startAsync()
         {
             activeCore = this;
-            _client = new DiscordSocketClient();
+            Program.client = new DiscordSocketClient();
             IConfiguration _config = ConfigUtils.getConfig();
             _services = ConfigureServices();
             _services.GetRequiredService<LogService>();
             await _services.GetRequiredService<CommandHandler>().loadAllModulesAsync();
 
-            await _client.LoginAsync(TokenType.Bot, _config["token"]);
-            await _client.StartAsync();
+            await Program.client.LoginAsync(TokenType.Bot, _config["token"]);
+            await Program.client.StartAsync();
         }
 
         private IServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
                 // Base
-                .AddSingleton(_client)
+                .AddSingleton(Program.client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 // Logging
@@ -53,7 +52,8 @@ namespace Crab
         {
             _services.GetRequiredService<CommandHandler>().unloading();
 
-            _client.LogoutAsync().GetAwaiter().GetResult();
+            Program.client.LogoutAsync().GetAwaiter().GetResult();
+            Program.client = null;
         }
 
         public override JObject get_jobject(){ return null; }
