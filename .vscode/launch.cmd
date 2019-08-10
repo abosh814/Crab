@@ -4,4 +4,5 @@
 (cd ../Crab.Commands.Botcontrol && dotnet build --no-dependencies)
 (cd ../Crab.Commands.Fun && dotnet build --no-dependencies)
 (cd ../Crab.Commands.Github && dotnet build --no-dependencies)
+(cd ../Crab.Commands.Reminders && dotnet build --no-dependencies)
 (cd ../Crab.Head && dotnet run)

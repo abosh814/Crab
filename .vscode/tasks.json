@@ -91,6 +91,21 @@
             }
         },
         {
+            "label": "Commands.Reminders",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Crab.Commands.Reminders/Crab.Commands.Reminders.csproj",
+                "--no-dependencies"
+            ],
+            "problemMatcher": "$tsc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "Full Launch",
             "type": "shell",
             "options": {

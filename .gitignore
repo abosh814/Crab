@@ -4,14 +4,13 @@
 /Crab.Commands.Botcontrol/bin/*
 /Crab.Commands.Github/bin/*
 /Crab.Commands.Fun/bin/*
+/Crab.Commands.Reminders/bin/*
 /Crab/obj/*
 /Crab.Head/obj/*
 /Crab.Commands.Basics/obj/*
 /Crab.Commands.Botcontrol/obj/*
 /Crab.Commands.Github/obj/*
 /Crab.Commands.Fun/obj/*
+/Crab.Commands.Reminders/obj/*
 /Crab.Head/data/*
 /Crab.Head/config.json
-
-TODO
-/Crab.Commands.Reminder/*

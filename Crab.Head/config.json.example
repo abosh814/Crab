@@ -26,6 +26,10 @@
 		{
 			"name": "Commands.Fun",
 			"path": "../Crab.Commands.Fun/bin/Debug/netcoreapp3.0/Crab.Commands.Fun.dll"
+		},
+		{
+			"name": "Commands.Reminders",
+			"path": "../Crab.Commands.Reminders/bin/Debug/netcoreapp3.0/Crab.Commands.Reminders.dll"
 		}
 	],
 	"repos": [
