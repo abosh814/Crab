@@ -9,10 +9,13 @@ namespace Crab
 {
     public abstract class ModuleInstance //if you want instances for your modules
     {
+        public bool shutting_down {get; private set;} //for loops to detect a shutdown
         public async Task<ModuleInstanceResult> mainAsync(){
-            await startAsync();
+            shutting_down = false;
+            startAsync();
 
             await exitEvent.WaitAsync();
+            shutting_down = true;
 
             shutdown();
 
