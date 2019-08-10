@@ -4,6 +4,8 @@ using System.Net;
 using Discord;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace Crab
 {
@@ -37,11 +39,16 @@ namespace Crab
             }
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-            using(HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using(Stream stream = response.GetResponseStream())
-            using(StreamReader reader = new StreamReader(stream))
+            try{
+                using(HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using(Stream stream = response.GetResponseStream())
+                using(StreamReader reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }catch(WebException) //if we 404
             {
-                return reader.ReadToEnd();
+                return "";
             }
         }
 
@@ -224,6 +231,22 @@ namespace Crab
 
 
             return embed.Build();
+        }
+
+        public static Embed embed_commit(string sha, string repo){
+            dynamic obj = GitUtils.get_json(GitUtils.github_url($"/repos/{repo}/git/commits/{sha}"));
+            if(obj == null)
+                return null;
+            string[] split = $"{obj.message}".Split("\n");
+            string title = split[0];
+            string desc = String.Join("\n", split.Skip(1));
+
+            EmbedBuilder embed = new EmbedBuilder();
+            return embed.WithFooter($"{repo} {sha} by {obj.author.name}")
+                .WithUrl($"{obj.html_url}")
+                .WithTitle(title)
+                .WithDescription(format_desc(desc))
+                .Build();
         }
     }
 }
