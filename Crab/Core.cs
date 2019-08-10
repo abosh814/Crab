@@ -52,7 +52,7 @@ namespace Crab
         {
             _services.GetRequiredService<CommandHandler>().unloading();
 
-            Program.client.LogoutAsync().GetAwaiter().GetResult();
+            Program.client.LogoutAsync();
             Program.client = null;
         }
 
