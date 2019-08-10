@@ -130,7 +130,7 @@ namespace Crab.Commands
                     string mentions = "";
                     foreach (var key in Utils.get_all_admin_keys())
                     {
-                        mentions += $"<@!{key}>";
+                        mentions += Utils.mention(key);
                     }
                     context.Channel.SendMessageAsync($"{mentions} Exception occured in command execution, check logs.");
 

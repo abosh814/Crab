@@ -19,5 +19,11 @@ namespace Crab{
             }
             return keys;
         }
+
+        public static string mention(ulong UID)
+            => $"<@!{UID}>";
+
+        public static string mention(string UID)
+            => $"<@!{UID}>";
     }
 }
