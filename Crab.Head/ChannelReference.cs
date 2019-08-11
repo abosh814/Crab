@@ -34,7 +34,7 @@ namespace Crab
             if(!isPrivate && client.GetGuild(GuildID)?.GetChannel(ChannelID) != null){
                 return client.GetGuild(GuildID)?.GetChannel(ChannelID) as ISocketMessageChannel;
             }
-            return client.GetUser(UserID).GetOrCreateDMChannelAsync() as ISocketMessageChannel;
+            return client.GetUser(UserID).GetOrCreateDMChannelAsync().GetAwaiter().GetResult() as ISocketMessageChannel;
         }
     }
 }

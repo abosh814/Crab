@@ -49,14 +49,21 @@ namespace Crab
 
         public override async Task startAsync(){
             while(!shutting_down){
+                List<Reminder> toRemove = new List<Reminder>();
                 foreach(Reminder reminder in reminders.Where(t => (t.expired())))
                 {
                     ISocketMessageChannel channel = reminder.Channel.get_channel(Program.client);
 
                     channel.SendMessageAsync($"_Buzz_ {Utils.mention(reminder.UserID)} {reminder.Message}");
 
-                    reminders.Remove(reminder);
+                    toRemove.Add(reminder);
                 }
+
+                foreach (Reminder re in toRemove)
+                {
+                    reminders.Remove(re);
+                }
+
                 await Task.Delay(5000); //the loop will fire 5 seconds
             }
         }
