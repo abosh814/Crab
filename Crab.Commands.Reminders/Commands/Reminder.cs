@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System;
 
-namespace Crab.Commands.Github
+namespace Crab.Commands.Reminders
 {
     [LogModule]
     public class ReminderModule : CrabCommandModule
