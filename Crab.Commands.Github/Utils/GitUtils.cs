@@ -66,8 +66,12 @@ namespace Crab
         public static IConfigurationSection getRepoSection(string prefix)
             => ConfigUtils.getConfig().GetSection("repos").GetChildren().Where(t => (t.GetValue<string>("prefix") == prefix)).First();
 
-        public static string getMasterBranch(string prefix)
-            => getRepoSection(prefix)?.GetValue<string>("master");
+        public static string getMasterBranch(string prefix){
+            string branch = getRepoSection(prefix)?.GetValue<string>("master");
+            if(branch == null || branch == "")
+                return "master";
+            return branch;
+        }
 
         public static string format_desc(string desc){
             string res = desc; //remove html comments
