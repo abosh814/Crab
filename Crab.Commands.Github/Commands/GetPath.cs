@@ -78,6 +78,7 @@ namespace Crab.Commands.Github
                 }
 
                 value += $"[`{item.Key}`]({item.Value})\n";
+                count++;
             }
             if(value == "")
                 return Task.CompletedTask;
