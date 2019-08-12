@@ -60,13 +60,14 @@ namespace Crab
             return JsonConvert.DeserializeObject(get_request(uri, accept));
         }
 
-        public static string get_repo(string prefix){
-            IConfiguration config = ConfigUtils.getConfig();
-            foreach (IConfigurationSection repo in config.GetSection("repos").GetChildren()){
-                if(repo.GetValue<string>("prefix") == prefix) return repo.GetValue<string>("repo");
-            }
-            return null;
-        }
+        public static string get_repo(string prefix)
+            => getRepoSection(prefix)?.GetValue<string>("repo");
+
+        public static IConfigurationSection getRepoSection(string prefix)
+            => ConfigUtils.getConfig().GetSection("repos").GetChildren().Where(t => (t.GetValue<string>("prefix") == prefix)).First();
+
+        public static string getMasterBranch(string prefix)
+            => getRepoSection(prefix)?.GetValue<string>("master");
 
         public static string format_desc(string desc){
             string res = desc; //remove html comments
