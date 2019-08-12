@@ -45,12 +45,5 @@ namespace Crab.Commands.Basics
             BasicInstance.memorytest = m.Groups[1].Value;
             return context.Channel.SendMessageAsync("Now remembering "+BasicInstance.memorytest);
         }
-
-        [DMResponse]
-        [MentionOnly]
-        [AdminOnly]
-        [CrabCommand("config")]
-        public static Task config(Match m, CommandContext context)
-            => context.Channel.SendMessageAsync(BasicsUtils.listConfig());
     }
 }
