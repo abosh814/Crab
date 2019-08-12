@@ -15,19 +15,21 @@ Yeah i mean pretty self-explanatory
 Config holds everything from API auth code, admin discord keys to modules and repositories
 Is still json rn, but that can change
 #### Commands (so far)
-![lazyman](https://cdn.discordapp.com/attachments/495322390155362324/608409278646190087/unknown.png)
-#### Regex Commands
-yeah i gottem
+(its regex)
+![lazyman](https://media.discordapp.net/attachments/594515293292724249/610430656182353953/unknown.png)
+
 
 ## PLANNED
 its brewing...
 #### Porting over functionalities from MoMMIv2
 - Basically anything from Reminders to DM code testing. EVERYTHING
-- help command
 #### Expanding Core
-- Making every module an instance so it can handle its own data and can be (de)serialized when loading/unloading
 - nuke that ugly logging thing from discord.net and use sawmill or whatever its called
 - log more stuff, requires ^
 - buy beer
+- help topics
+- make commands be able to tell the commandhandler that they failed
+- make commandlist only output what you have permissions for
+- permissionstest
 #### OnIssue, OnPR, webhooks basically
 idunno someday, its fucky weird
