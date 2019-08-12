@@ -16,6 +16,7 @@ Config holds everything from API auth code, admin discord keys to modules and re
 Is still json rn, but that can change
 #### Commands (so far)
 (its regex)
+
 ![lazyman](https://media.discordapp.net/attachments/594515293292724249/610430656182353953/unknown.png)
 
 
